@@ -99,6 +99,7 @@ Before running the project, ensure the following software is installed:
 ```
 
 # Quick Start
+Follow the commands below in order to clone, install, configure, and run the project.
 
 ```bash
 # 1. Clone the repository
