@@ -69,7 +69,7 @@ Eight Fold AI/
 Clone Repository:
 ```bash
 git clone https://github.com/sama-dharani/Candidate-intelligence-engine-Eightfold-AI-Project.git
-cd "Candidate-intelligence-engine-Eightfold-AI-Project"
+cd Candidate-intelligence-engine-Eightfold-AI-Project
 ```
 
 Virtual Environment:
