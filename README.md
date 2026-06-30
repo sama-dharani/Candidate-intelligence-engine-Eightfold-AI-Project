@@ -6,16 +6,43 @@ Eightfold AI Candidate Intelligence Platform
 
 # Project Overview
 
-**Purpose:** A deterministic candidate transformation pipeline that ingests multiple candidate information sources, normalizes and merges them into a single canonical candidate profile, tracks provenance, calculates confidence scores, and generates configurable JSON output.
-**Supported Sources:** Recruiter CSV, ATS JSON, PDF/DOCX Resumes, GitHub Profiles, LinkedIn Profiles.
-**Canonical Profile:** Transforms all data into a strictly defined JSON schema.
-**Normalization:** E.164 phones, YYYY-MM dates, ISO-3166 Alpha-2 countries, and canonical skills.
-**Merge Engine:** Deduplicates arrays and handles primitive field conflicts based on source priority.
-**Confidence:** Calculates 0-100 score based on corroborating sources and data completeness.
-**Provenance:** Every data field is tracked back to its original source document.
-**Runtime Projection:** Configurable views (e.g., PII masking) applied at output time.
-**Validation:** Strict enforcement of `canonical_candidate.json` using `jsonschema`.
-**Dashboard:** Interactive vanilla JS UI featuring Knowledge Graphs and Side-by-Side Candidate Comparisons.
+**Purpose:**
+A deterministic candidate intelligence pipeline that ingests multiple structured and unstructured candidate sources, transforms them into a unified canonical candidate profile, and produces configurable, schema-valid JSON output with full traceability.
+
+### Supported Input Sources
+
+**Structured Sources**
+- Recruiter CSV Export
+- ATS JSON Blob
+
+**Unstructured Sources**
+- Resume (PDF/DOCX)
+- GitHub Profile
+- LinkedIn Profile
+- Recruiter Notes (.txt)
+
+### Core Capabilities
+
+- **Canonical Candidate Profile** – Converts data from multiple sources into a single standardized JSON schema.
+- **Normalization Engine** – Standardizes phone numbers (E.164), dates (YYYY-MM), countries (ISO-3166 Alpha-2), and canonical skill names.
+- **Merge Engine** – Resolves duplicate candidates and deterministically merges conflicting information using source priority and predefined rules.
+- **Confidence Scoring** – Calculates field-level and overall confidence scores based on source reliability, data completeness, and cross-source agreement.
+- **Provenance Tracking** – Records the source and extraction method for every field to ensure explainability.
+- **Runtime Projection** – Generates configurable output by selecting, renaming, or hiding fields without modifying the internal canonical profile.
+- **Schema Validation** – Validates all generated output against the canonical JSON schema using `jsonschema`.
+
+### Dashboard
+
+The project includes an interactive dashboard that provides:
+
+- Pipeline Visualization
+- Candidate Records Viewer
+- Normalization Viewer
+- Side-by-Side Candidate Comparison
+- Knowledge Graph Visualization
+- Runtime Configuration Panel
+- Validation Results
+- JSON Output Preview
 
 ---
 
