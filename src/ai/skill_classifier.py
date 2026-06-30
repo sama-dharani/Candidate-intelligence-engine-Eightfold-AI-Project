@@ -69,7 +69,7 @@ class SkillClassifier:
             skill_lower = skill.lower().strip()
             
             # 1. Frequency in Resume Text
-            freq = len(re.findall(rf"\b{re.escape(skill_lower)}\b", text_lower)) if text_lower else 1
+            freq = len(re.findall(rf"(?<!\w){re.escape(skill_lower)}(?!\w)", text_lower)) if text_lower else 1
             
             # 2. Used in Projects?
             proj_match = False

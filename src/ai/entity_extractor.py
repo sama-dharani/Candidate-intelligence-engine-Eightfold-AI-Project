@@ -67,7 +67,7 @@ class EntityExtractor:
             blocks.append("\n".join(current_block))
 
         experience = []
-        titles_pool = ["software engineer", "intern", "developer", "lead", "architect", "manager", "analyst", "consultant", "scientist", "engineer", "specialist"]
+        titles_pool = ["software engineer", "intern", "internship", "apprentice", "fellowship", "developer", "lead", "architect", "manager", "analyst", "consultant", "scientist", "engineer", "specialist"]
 
         for block in blocks:
             blines = [l.strip() for l in block.split("\n") if l.strip()]

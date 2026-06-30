@@ -109,6 +109,28 @@ def _run_pipeline_on_files(session_dir: Path):
         except Exception as e:
             _log(f"JSON {f.name}", "warning", str(e))
 
+    for f in github_files:
+        try:
+            from src.loaders.github_loader import GitHubLoader
+            data = GitHubLoader().load(f)
+            m = mapper.get_all(data)
+            m.update({"_source_index": source_index, "_source_type": "github",
+                      "_source_file": f.name})
+            raw_records.append(m); source_index += 1
+        except Exception as e:
+            _log(f"GitHub {f.name}", "warning", str(e))
+
+    for f in linkedin_files:
+        try:
+            from src.loaders.linkedin_loader import LinkedInLoader
+            data = LinkedInLoader().load(f)
+            m = mapper.get_all(data)
+            m.update({"_source_index": source_index, "_source_type": "linkedin",
+                      "_source_file": f.name})
+            raw_records.append(m); source_index += 1
+        except Exception as e:
+            _log(f"LinkedIn {f.name}", "warning", str(e))
+
     for f in pdf_files:
         try:
             text = PDFLoader().load(f)
@@ -123,7 +145,7 @@ def _run_pipeline_on_files(session_dir: Path):
             _log(f"PDF {f.name}", "warning", str(e))
 
     STATE["raw_count"] = len(raw_records)
-    _log("Loading Files", "done", f"{len(raw_records)} raw records from {len(csv_files)} CSV, {len(json_files)} JSON, {len(pdf_files)} PDF")
+    _log("Loading Files", "done", f"{len(raw_records)} raw records from {len(csv_files)} CSV, {len(json_files)} JSON, {len(github_files)} GitHub, {len(linkedin_files)} LinkedIn, {len(pdf_files)} PDF")
 
     if not raw_records:
         _log("Pipeline Complete", "error", "No records loaded. Upload at least one file.")

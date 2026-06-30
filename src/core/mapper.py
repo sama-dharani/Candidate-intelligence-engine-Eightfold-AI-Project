@@ -39,19 +39,21 @@ class DynamicFieldMapper:
                     return value
         return None
 
-    def _recursive_find(self, data: Any, aliases: List[str]) -> Optional[Any]:
+    def _recursive_find(self, data: Any, aliases: List[str], canonical: str = "") -> Optional[Any]:
         """Recursively search nested dictionaries/lists for a matching key."""
         cleaned_aliases = [self._clean(a) for a in aliases]
+        if canonical:
+            cleaned_aliases.append(self._clean(canonical))
         if isinstance(data, dict):
             for key, value in data.items():
                 if self._clean(key) in cleaned_aliases:
                     return value
-                result = self._recursive_find(value, aliases)
+                result = self._recursive_find(value, aliases, canonical)
                 if result is not None:
                     return result
         elif isinstance(data, list):
             for item in data:
-                result = self._recursive_find(item, aliases)
+                result = self._recursive_find(item, aliases, canonical)
                 if result is not None:
                     return result
         return None
@@ -63,7 +65,7 @@ class DynamicFieldMapper:
             return flat_result
         
         aliases = self.mapping.get(canonical, [])
-        return self._recursive_find(source, aliases)
+        return self._recursive_find(source, aliases, canonical)
 
     def get_all(self, source: Any) -> Dict[str, Any]:
         """Build and return a canonical candidate dictionary from the raw source."""

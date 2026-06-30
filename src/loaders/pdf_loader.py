@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Union
 
 try:
     import pdfplumber
@@ -8,14 +9,19 @@ except ImportError:
         from PyPDF2 import PdfReader
         _PDF_BACKEND = "pypdf2"
     except ImportError:
-        _PDF_BACKEND = "text"
+        try:
+            from pdfminer.high_level import extract_text
+            _PDF_BACKEND = "pdfminer"
+        except ImportError:
+            _PDF_BACKEND = "text"
+            extract_text = None
 
 
 class PDFLoader:
     """Extract raw text from PDF files.  
     Uses pdfplumber if available, falls back to PyPDF2, then plain-text read."""
 
-    def load(self, file_path: str | Path) -> str:
+    def load(self, file_path: Union[str, Path]) -> str:
         path = Path(file_path)
         if not path.is_file():
             raise FileNotFoundError(f"File not found: {path}")
@@ -46,6 +52,13 @@ class PDFLoader:
                 return "\n".join(
                     (page.extract_text() or "") for page in reader.pages
                 )
+            except Exception:
+                pass
+
+        # pdfminer backend
+        if _PDF_BACKEND == "pdfminer":
+            try:
+                return extract_text(str(path))
             except Exception:
                 pass
 

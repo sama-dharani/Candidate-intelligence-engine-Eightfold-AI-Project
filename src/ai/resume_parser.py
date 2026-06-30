@@ -1,7 +1,7 @@
 import json
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Set, Optional
+from typing import Any, Dict, List, Set, Optional, Union
 
 # spaCy is optional — if not installed, regex fallbacks are used
 try:
@@ -21,7 +21,7 @@ class ResumeParser:
     when available (en_core_web_sm model required).
     """
 
-    def __init__(self, skills_config_path: Optional[str | Path] = None):
+    def __init__(self, skills_config_path: Optional[Union[str, Path]] = None):
         self.skills: List[str] = []
         if skills_config_path:
             skill_path = Path(skills_config_path)
@@ -52,20 +52,7 @@ class ResumeParser:
 
     @staticmethod
     def extract_name(text: str) -> str:
-        """Best-effort name extraction: spaCy → regex line heuristic → fallback."""
-        # spaCy path
-        if _nlp:
-            doc = _nlp(text[:2000])
-            for ent in doc.ents:
-                if ent.label_ == "PERSON":
-                    val = ent.text.strip()
-                    if len(val.split()) >= 2 and not any(
-                        t in val.lower()
-                        for t in ["resume", "curriculum", "engineer", "developer"]
-                    ):
-                        return val
-
-        # Regex heuristic: first line that looks like "Firstname Lastname"
+        """Best-effort name extraction: regex line heuristic → spaCy → fallback."""
         # 1. Regex heuristic: check first few lines of text
         lines = [ln.strip() for ln in text.split("\n") if ln.strip()]
         for line in lines[:8]:
@@ -83,7 +70,19 @@ class ResumeParser:
                 # If it is already in Title Case or similar
                 if all(w[0].isupper() for w in words if w and w[0].isalpha()):
                     return cleaned_line
-                    
+
+        # 2. spaCy path
+        if _nlp:
+            doc = _nlp(text[:2000])
+            for ent in doc.ents:
+                if ent.label_ == "PERSON":
+                    val = ent.text.strip()
+                    if len(val.split()) >= 2 and not any(
+                        t in val.lower()
+                        for t in ["resume", "curriculum", "engineer", "developer"]
+                    ):
+                        return val
+                        
         return "Unknown Candidate"
 
     # ── Skills extraction ─────────────────────────────────────────
@@ -94,7 +93,7 @@ class ResumeParser:
         lower = text.lower()
         found: Set[str] = set()
         for skill in self.skills:
-            pattern = rf"\b{re.escape(skill.lower())}\b"
+            pattern = rf"(?<!\w){re.escape(skill.lower())}(?!\w)"
             if re.search(pattern, lower):
                 found.add(skill)
         return sorted(found)
