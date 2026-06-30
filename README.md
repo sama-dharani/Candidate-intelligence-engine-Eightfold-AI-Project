@@ -82,12 +82,15 @@ Eight Fold AI/
 
 ---
 
-# Prerequisites
+## Prerequisites
 
-**Python Version:** Python 3.10+ (Recommended Python 3.12 or 3.13)
-**Dependencies:** flask, pdfminer.six, jsonschema, spacy, pytest
-**Operating System:** Windows, Linux, or macOS
-**Package Manager:** pip
+Before running the project, ensure the following software is installed:
+
+- **Python 3.10 or later** (Python 3.12/3.13 recommended)
+- **pip** (Python package manager, included with most Python installations)
+- **Git** (required to clone the repository)
+
+> **Note:** All required Python dependencies (Flask, spaCy, pdfminer.six, jsonschema, pytest, etc.) are installed automatically by the Quick Start commands using `pip install -r requirements.txt`.
 
 ---
 
