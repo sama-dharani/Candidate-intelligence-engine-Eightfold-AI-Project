@@ -64,28 +64,44 @@ Eight Fold AI/
 
 ---
 
-# Installation
 
-Clone Repository:
+
+```
+
+# Quick Start
+
 ```bash
+# 1. Clone the repository
+
 git clone https://github.com/sama-dharani/Candidate-intelligence-engine-Eightfold-AI-Project.git
+
+# 2. Enter the project directory (use quotes since there are spaces in the name)
+
 cd Candidate-intelligence-engine-Eightfold-AI-Project
-```
 
-Virtual Environment:
-```bash
+# 3. Create a virtual environment
 python -m venv venv
-# Activate on Windows:
+
+# 4. Activate the virtual environment (Windows)
 venv\Scripts\activate
-# Activate on Linux/macOS:
-source venv/bin/activate
+
+# 5. Install the required Python packages
+pip install -r requirements.txt
+
+# 6. Download the required AI language model for Spacy
+python -m spacy download en_core_web_sm
+
+# 7. Start the Dashboard UI (this will block your terminal)
+python examples/dashboard/app.py
+```
+### Extra to run tests
+### Running Tests
+To run the automated tests open a **new terminal**, activate the environment again, and run:
+```bash
+python -m pytest tests/test_pipeline.py -v
+
 ```
 
-Dependency Installation:
-```bash
-pip install -r requirements.txt
-python -m spacy download en_core_web_sm
-```
 
 ---
 
@@ -254,35 +270,3 @@ The output schema contains: `candidate_id`, `full_name`, `emails`, `phones`, `lo
 
 ---
 
-# Quick Start
-
-```bash
-# 1. Clone the repository
-
-git clone https://github.com/sama-dharani/Candidate-intelligence-engine-Eightfold-AI-Project.git
-
-# 2. Enter the project directory (use quotes since there are spaces in the name)
-
-cd Candidate-intelligence-engine-Eightfold-AI-Project
-
-# 3. Create a virtual environment
-python -m venv venv
-
-# 4. Activate the virtual environment (Windows)
-venv\Scripts\activate
-
-# 5. Install the required Python packages
-pip install -r requirements.txt
-
-# 6. Download the required AI language model for Spacy
-python -m spacy download en_core_web_sm
-
-# 7. Start the Dashboard UI (this will block your terminal)
-python examples/dashboard/app.py
-```
-### Extra
-### Running Tests
-To run the automated tests open a **new terminal**, activate the environment again, and run:
-```bash
-python -m pytest tests/test_pipeline.py -v
-```
