@@ -1,0 +1,17 @@
+{
+  "entity_resolution": {
+    "name": 0.30,
+    "email": 0.35,
+    "phone": 0.20,
+    "linkedin": 0.10,
+    "github": 0.05
+  },
+  "confidence": {
+    "email": 0.35,
+    "phone": 0.25,
+    "skills": 0.20,
+    "github": 0.10,
+    "linkedin": 0.05,
+    "other": 0.05
+  }
+}

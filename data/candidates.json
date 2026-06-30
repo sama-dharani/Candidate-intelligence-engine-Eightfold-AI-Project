@@ -1,0 +1,25 @@
+[
+  {
+    "full_name": "John A. Smith",
+    "emails": [
+      "john.smith@gmail.com"
+    ],
+    "phones": [
+      "(123) 456-7890"
+    ],
+    "skills": [
+      "Python",
+      "TensorFlow",
+      "PyTorch"
+    ],
+    "experience": [
+      {
+        "company": "Google",
+        "title": "Software Engineer",
+        "start_date": "2020",
+        "end_date": "2022",
+        "description": "Built scalable cloud services and Python models."
+      }
+    ]
+  }
+]

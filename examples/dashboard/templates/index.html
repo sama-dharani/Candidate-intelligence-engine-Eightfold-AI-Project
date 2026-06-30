@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eightfold AI — Candidate Intelligence Platform</title>
+  <meta name="description" content="Enterprise-grade multi-source AI candidate data transformer with runtime configuration, validation schemas, and transparent provenance matching.">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- Ambient background -->
+<div class="ambient">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════ -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">⬡</div>
+    <div class="brand-text">
+      <span class="brand-name">Eightfold AI</span>
+      <span class="brand-sub">Candidate Data Transformer</span>
+    </div>
+  </div>
+  <nav class="tabs" id="main-tabs">
+    <button class="tab active" data-tab="pipeline" onclick="switchTab('pipeline')">⚙ Pipeline & Ingestion</button>
+    <button class="tab" data-tab="candidates" onclick="switchTab('candidates')">👤 Candidate Records</button>
+    <button class="tab" data-tab="normalization" onclick="switchTab('normalization')">🔀 Normalization Viewer</button>
+    <button class="tab" data-tab="compare" onclick="switchTab('compare')">⚖ Side-by-Side Comparison</button>
+    <button class="tab" data-tab="graph" onclick="switchTab('graph')">🕸 Knowledge Graph</button>
+  </nav>
+  <div class="topbar-right">
+    <button class="btn-ghost" onclick="useDemoData()">↺ Load Sample Sources</button>
+  </div>
+</header>
+
+<!-- ══ KPI BAR ══════════════════════════════════════════════════ -->
+<div class="kpi-bar" id="kpi-bar">
+  <div class="kpi"><span class="kpi-val" id="kpi-processed">—</span><span class="kpi-label">Processed Sources</span></div>
+  <div class="kpi-divider"></div>
+  <div class="kpi"><span class="kpi-val" id="kpi-unique">—</span><span class="kpi-label">Merged Profiles</span></div>
+  <div class="kpi-divider"></div>
+  <div class="kpi"><span class="kpi-val" id="kpi-dupes">—</span><span class="kpi-label">Duplicates Resolved</span></div>
+  <div class="kpi-divider"></div>
+  <div class="kpi"><span class="kpi-val" id="kpi-confidence">—</span><span class="kpi-label">Avg Confidence</span></div>
+  <div class="kpi-divider"></div>
+  <div class="kpi"><span class="kpi-val" id="kpi-errors">0</span><span class="kpi-label">Edge Cases Handled</span></div>
+</div>
+
+<!-- ══ MAIN LAYOUT ═════════════════════════════════════════════ -->
+<main class="transformer-layout">
+
+  <!-- ── TAB 1: PIPELINE & INGESTION ───────────────────────────── -->
+  <div id="tab-pipeline" class="tab-content active">
+    <div class="pipeline-grid">
+      
+      <!-- Left Column: Source Upload -->
+      <div class="pipeline-card glass">
+        <h3>Upload Candidate Sources</h3>
+        <p class="card-desc">Drag and drop raw unstructured resumes, recruiter CSVs, or JSON arrays to begin the transformation.</p>
+        
+        <div class="upload-zone" id="drop-zone"
+             ondragover="event.preventDefault()" ondrop="handleDrop(event)"
+             onclick="document.getElementById('file-input').click()">
+          <div class="drop-icon">📂</div>
+          <p class="drop-title">Drop CSV, JSON, PDF Resumes here</p>
+          <p class="drop-hint">Click to browse · Supports CSV, JSON (ATS), PDF/TXT Resumes</p>
+          <input type="file" id="file-input" multiple accept=".csv,.json,.pdf,.txt" style="display:none" onchange="handleFileSelect(this.files)">
+        </div>
+        
+        <div id="file-list" class="file-list hidden"></div>
+
+        <div id="file-actions-bar" class="file-actions-bar hidden">
+          <span id="file-count-label" style="font-size:12px;color:var(--text-muted);"></span>
+          <button class="btn-sm" onclick="clearAllFiles()" style="color:var(--danger);border-color:rgba(239,68,68,0.3);">✕ Remove All</button>
+        </div>
+        
+        <div class="upload-actions">
+          <button class="btn-primary" id="btn-run" onclick="runPipeline()" disabled>▶ Start Pipeline Transformation</button>
+        </div>
+      </div>
+
+      <!-- Right Column: Process Stages -->
+      <div class="pipeline-card glass">
+        <h3>Live ETL Pipeline Status</h3>
+        <p class="card-desc">Real-time visualization of the transformation sequence stages.</p>
+        
+        <div class="pipeline-steps" id="pipeline-steps">
+          <div class="p-step waiting" data-step="Loading Files">
+            <div class="step-icon">📥</div>
+            <div class="step-body"><span class="step-name">Loading Stage</span><span class="step-detail">Ingesting multi-format files</span></div>
+            <div class="step-badge">waiting</div>
+          </div>
+          <div class="p-step waiting" data-step="Parsing Layer">
+            <div class="step-icon">🔎</div>
+            <div class="step-body"><span class="step-name">Parsing Layer</span><span class="step-detail">Extracting tokens and properties</span></div>
+            <div class="step-badge">waiting</div>
+          </div>
+          <div class="p-step waiting" data-step="Normalization Layer">
+            <div class="step-icon">🔀</div>
+            <div class="step-body"><span class="step-name">Normalization Layer</span><span class="step-detail">Standardizing names, phones, and dates</span></div>
+            <div class="step-badge">waiting</div>
+          </div>
+          <div class="p-step waiting" data-step="Conflict Resolution">
+            <div class="step-icon">⚖</div>
+            <div class="step-body"><span class="step-name">Conflict Resolution</span><span class="step-detail">Checking values and applying voting</span></div>
+            <div class="step-badge">waiting</div>
+          </div>
+          <div class="p-step waiting" data-step="Deduplication Layer">
+            <div class="step-icon">👥</div>
+            <div class="step-body"><span class="step-name">Deduplication Layer</span><span class="step-detail">Merging duplicate candidate keys</span></div>
+            <div class="step-badge">waiting</div>
+          </div>
+          <div class="p-step waiting" data-step="AI Enrichment">
+            <div class="step-icon">🤖</div>
+            <div class="step-body"><span class="step-name">AI Enrichment</span><span class="step-detail">Taxonomy mapping & domain grouping</span></div>
+            <div class="step-badge">waiting</div>
+          </div>
+          <div class="p-step waiting" data-step="Confidence Engine">
+            <div class="step-icon">🎯</div>
+            <div class="step-body"><span class="step-name">Confidence Engine</span><span class="step-detail">Computing source weight indicators</span></div>
+            <div class="step-badge">waiting</div>
+          </div>
+          <div class="p-step waiting" data-step="Schema Validation">
+            <div class="step-icon">✅</div>
+            <div class="step-body"><span class="step-name">Schema Validation</span><span class="step-detail">Checking canonical formatting constraint</span></div>
+            <div class="step-badge">waiting</div>
+          </div>
+          <div class="p-step waiting" data-step="Knowledge Graph">
+            <div class="step-icon">🕸</div>
+            <div class="step-body"><span class="step-name">Knowledge Graph Linking</span><span class="step-detail">Relational link compilation</span></div>
+            <div class="step-badge">waiting</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pipeline Stats Panel -->
+    <div id="pipeline-stats-panel" class="pipeline-stats-panel glass hidden">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <h3 style="font-size:14px;font-weight:700;">📊 Pipeline Execution Statistics</h3>
+        <span style="font-size:11px;color:var(--accent3);font-weight:700;">LIVE</span>
+      </div>
+      <div class="stats-grid" id="stats-grid"></div>
+    </div>
+
+    <!-- Edge Case Simulator -->
+    <div class="glass" style="margin-top:16px;overflow:hidden;">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <h3 style="font-size:14px;font-weight:700;">🧪 Edge Case Simulator</h3>
+        <span style="font-size:11px;color:var(--text-muted);">Test robustness without preparing bad files</span>
+      </div>
+      <div style="padding:16px 20px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+          <button class="sim-btn" onclick="simulateEdgeCase('broken_resume')" title="ALL_CAPS name + email as skill + bad phone">📄 Broken Resume</button>
+          <button class="sim-btn" onclick="simulateEdgeCase('duplicate_email')" title="Same email in two sources">👥 Duplicate Email</button>
+          <button class="sim-btn" onclick="simulateEdgeCase('missing_phone')" title="Record with no phone">📵 Missing Phone</button>
+          <button class="sim-btn" onclick="simulateEdgeCase('malformed_json')" title="Empty name, no skills, bad phone">⚠ Malformed JSON</button>
+          <button class="sim-btn" onclick="simulateEdgeCase('conflicting_experience')" title="Multiple experience entries">⚡ Conflicting Exp</button>
+        </div>
+        <div id="sim-result" class="sim-result hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 2: CANDIDATE RECORDS ───────────────────────────────── -->
+  <div id="tab-candidates" class="tab-content">
+    
+    <!-- Intelligent Search & Match explanations -->
+    <div class="copilot-bar glass">
+      <div class="copilot-label">🔎 Intelligent Search</div>
+      <input type="text" id="copilot-input" class="copilot-input"
+        placeholder='e.g., "Find Python AI engineers with Docker and 5 years experience in Hyderabad"'
+        onkeydown="if(event.key==='Enter') runCopilot()">
+      <button class="btn-primary" onclick="runCopilot()">Execute</button>
+      <button class="btn-ghost" onclick="clearCopilot()">✕ Clear</button>
+    </div>
+    <div id="copilot-filters" class="copilot-filters hidden"></div>
+
+    <!-- Candidate Main Panel Split -->
+    <div class="records-split">
+      
+      <!-- Left side: Candidate list, duplicate resolution review & edge cases -->
+      <div class="records-left">
+        
+        <!-- Suspected duplicate merges -->
+        <div id="duplicates-banner" class="duplicates-banner glass hidden"></div>
+
+        <!-- Ingestion Edge Cases log -->
+        <div class="edge-cases-panel glass">
+          <h3>Ingestion Edge Cases Log</h3>
+          <div class="edge-log" id="edge-log">
+            <div class="edge-item"><span class="badge badge-info">Idle</span>Waiting for file ingestion...</div>
+          </div>
+        </div>
+
+        <!-- Canonical List -->
+        <div class="candidates-card-list" id="candidates-grid">
+          <div class="empty-state glass">
+            <p>Ingest data to generate canonical candidates.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: Candidate Detail Page & Schema Config Editor -->
+      <div class="records-right">
+        
+        <!-- Custom Config Runtime Projection Editor -->
+        <div class="config-editor glass">
+          <div class="config-header">
+            <h3>Runtime Output Configurator</h3>
+            <select id="preset-view" class="view-select" onchange="applyPresetView()">
+              <option value="full">Preset: Full Access</option>
+              <option value="recruiter">Preset: Recruiter View (PII Redacted)</option>
+              <option value="public">Preset: Public View (No PII)</option>
+              <option value="anonymous">Preset: Anonymous / Blind Screening</option>
+              <option value="skills_only">Preset: Skills Only</option>
+              <option value="custom">Preset: Custom Config</option>
+            </select>
+          </div>
+          
+          <div class="config-grid">
+            <div class="config-group">
+              <span class="config-group-label">Include Fields</span>
+              <div class="config-checkboxes">
+                <label class="chk-lbl"><input type="checkbox" id="cfg-name" checked> full_name</label>
+                <label class="chk-lbl"><input type="checkbox" id="cfg-emails" checked> emails</label>
+                <label class="chk-lbl"><input type="checkbox" id="cfg-phones" checked> phones</label>
+                <label class="chk-lbl"><input type="checkbox" id="cfg-location" checked> location</label>
+                <label class="chk-lbl"><input type="checkbox" id="cfg-skills" checked> skills</label>
+                <label class="chk-lbl"><input type="checkbox" id="cfg-exp" checked> experience</label>
+                <label class="chk-lbl"><input type="checkbox" id="cfg-edu" checked> education</label>
+                <label class="chk-lbl"><input type="checkbox" id="cfg-projects" checked> projects</label>
+              </div>
+            </div>
+            
+            <div class="config-group">
+              <span class="config-group-label">Toggles & Normalization</span>
+              <div class="config-checkboxes">
+                <label class="chk-lbl"><input type="checkbox" id="cfg-conf" checked> overall_confidence</label>
+                <label class="chk-lbl"><input type="checkbox" id="cfg-prov" checked> provenance</label>
+                <label class="chk-lbl"><input type="checkbox" id="cfg-normalize" checked> enforce_normalization</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="config-actions">
+            <button class="btn-ghost" onclick="applyCustomConfig()">Apply Custom Output Projection</button>
+            <div class="export-buttons">
+              <button class="btn-sm" onclick="exportData('json')">Export Output JSON</button>
+              <button class="btn-sm" onclick="exportData('csv')">Export Output CSV</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target profile details -->
+        <div class="profile-details-panel glass" id="profile-container">
+          <div class="empty-state">
+            <p>Click a candidate record to analyze their Canonical Profile, Validation Schemas, Provenance, and Normalization History.</p>
+          </div>
+        </div>
+
+        <!-- Real-time JSON preview -->
+        <div class="json-preview glass" id="json-preview-container">
+          <div class="json-header">
+            <span>Dynamic Output JSON Preview</span>
+            <button class="btn-sm" onclick="copyJSON()">Copy Code</button>
+          </div>
+          <pre class="json-box"><code id="json-code">// Raw canonical JSON view matching active projection rules will be previewed here.</code></pre>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 3: NORMALIZATION VIEWER ─────────────────────────────── -->
+  <div id="tab-normalization" class="tab-content">
+    <div class="glass" style="padding:24px;margin-bottom:20px;">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:6px;">🔀 Normalization Viewer</h2>
+      <p style="color:var(--text-muted);font-size:13px;">Every field transformation applied during the normalization stage — before vs. after. Demonstrates deterministic, rule-based standardization across all ingested sources.</p>
+    </div>
+    <div id="norm-viewer-content">
+      <div class="empty-state glass"><p>Run the pipeline first to populate normalization logs.</p></div>
+    </div>
+  </div>
+
+  <!-- ── TAB 4: COMPARISON ──────────────────────────────────────── -->
+  <div id="tab-compare" class="tab-content">
+    <div class="compare-selectors glass">
+      <div class="compare-select-group">
+        <label>Candidate A</label>
+        <select id="compare-a" class="compare-select"></select>
+      </div>
+      <div class="compare-vs">VS</div>
+      <div class="compare-select-group">
+        <label>Candidate B</label>
+        <select id="compare-b" class="compare-select"></select>
+      </div>
+      <button class="btn-primary" onclick="runComparison()">Execute Side-by-Side Comparison</button>
+    </div>
+    <div class="compare-search glass hidden" id="compare-search-container" style="margin-top:16px; padding:12px 20px; display:flex; align-items:center; gap:12px;">
+      <span style="color:var(--text-muted)">Search Comparison:</span>
+      <input type="text" id="compare-search-input" placeholder="e.g. Python, Leadership..." style="flex:1; background:var(--surface); border:1px solid var(--border); padding:8px 16px; color:var(--text); border-radius:6px; font-family:var(--font);" oninput="filterComparison(this.value)">
+    </div>
+    <div id="compare-result" class="compare-result" style="margin-top:24px;"></div>
+  </div>
+
+  <!-- ── TAB 4: KNOWLEDGE GRAPH ────────────────────────────────── -->
+  <div id="tab-graph" class="tab-content">
+    <div class="graph-header glass">
+      <div class="graph-legend">
+        <span class="legend-dot" style="background:#7c3aed"></span> Candidate
+        <span class="legend-dot" style="background:#0ea5e9"></span> Skill
+        <span class="legend-dot" style="background:#10b981"></span> Company
+        <span class="legend-dot" style="background:#f59e0b"></span> School
+        <span class="legend-dot" style="background:#ef4444"></span> Project
+      </div>
+      <div class="graph-controls">
+        <button class="btn-ghost" onclick="resetGraph()">Reset Scale</button>
+        <button class="btn-ghost" onclick="togglePhysics()">Toggle Physics</button>
+      </div>
+    </div>
+    <div class="canvas-container glass">
+      <canvas id="graph-canvas"></canvas>
+      <div id="graph-tooltip" class="graph-tooltip hidden"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══ FOOTER ═══════════════════════════════════════════════════ -->
+<footer>
+  <span>© 2026 Eightfold AI Candidate Ingestion Transformer • In compliance with engineering assessment criteria</span>
+  <span>Structured adapters • Normalization • Verification • Deterministic outputs</span>
+</footer>
+
+<script src="/static/main.js?v=2"></script>
+</body>
+</html>

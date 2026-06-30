@@ -1,0 +1,22 @@
+{
+  "username": "john-smith-ai",
+  "html_url": "https://github.com/john-smith-ai",
+  "public_repos": 3,
+  "repositories": [
+    {
+      "name": "ai-chatbot",
+      "description": "LangChain and CrewAI chatbot.",
+      "languages": [
+        "Python",
+        "HTML"
+      ]
+    },
+    {
+      "name": "pytorch-models",
+      "description": "CV models with PyTorch.",
+      "languages": [
+        "Python"
+      ]
+    }
+  ]
+}

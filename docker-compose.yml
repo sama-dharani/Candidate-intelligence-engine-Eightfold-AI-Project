@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+      - /app/venv
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=examples/dashboard/app.py
+    command: python -X utf8 examples/dashboard/app.py

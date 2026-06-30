@@ -1,0 +1,5 @@
+flask
+pdfminer.six
+jsonschema
+spacy>=3.8.2
+pytest

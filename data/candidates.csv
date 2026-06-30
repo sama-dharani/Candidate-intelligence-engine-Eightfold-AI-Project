@@ -1,0 +1,4 @@
+Name,Email,Phone,Location,Skills,LinkedIn
+John Smith,john.smith@gmail.com,+1 123-456-7890,Hyderabad,Python;SQL,https://linkedin.com/in/johnsmith
+Jane Doe,jane.doe@yahoo.com,+91 9876543210,Bangalore,Java;Spring Boot;React;AWS;Docker,https://linkedin.com/in/janedoe
+Bob Johnson,bob.johnson@microsoft.com,444-555-6666,Hyderabad,React;JavaScript;HTML;CSS;TypeScript,https://linkedin.com/in/bobjohnson

@@ -1,0 +1,10 @@
+{
+  "linkedin_id": "johnsmith",
+  "profile_url": "https://linkedin.com/in/johnsmith",
+  "skills": [
+    "Python",
+    "SQL",
+    "Machine Learning",
+    "Cloud Computing"
+  ]
+}

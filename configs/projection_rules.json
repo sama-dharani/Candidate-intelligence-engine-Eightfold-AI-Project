@@ -1,0 +1,41 @@
+{
+  "_comment": "Runtime-configurable projection rules. Each view controls include/exclude/redact fields applied to every candidate profile. Loaded dynamically at request time — no server restart required.",
+
+  "full": {
+    "_description": "Full access — all fields returned. Used by internal admins and system integrations.",
+    "include": ["*"],
+    "exclude": []
+  },
+
+  "recruiter": {
+    "_description": "Recruiter view — PII (email, phone) is redacted. Skills, experience, education and timeline are included.",
+    "include": ["full_name", "emails", "phones", "skills", "experience", "education", "projects", "certifications", "location", "confidence", "recommendations", "timeline"],
+    "exclude": ["provenance"],
+    "redact": {
+      "emails": "[REDACTED]",
+      "phones": "[REDACTED]"
+    }
+  },
+
+  "public": {
+    "_description": "Public view — PII and provenance metadata are excluded. Suitable for candidate-facing portals.",
+    "include": ["full_name", "skills", "experience", "education", "projects", "certifications", "location", "confidence", "recommendations", "timeline"],
+    "exclude": ["emails", "phones", "github", "linkedin", "provenance"]
+  },
+
+  "anonymous": {
+    "_description": "Anonymous view — full_name is redacted and all PII is stripped. Used for blind screening to remove hiring bias.",
+    "include": ["skills", "experience", "education", "projects", "certifications", "confidence", "timeline"],
+    "exclude": ["full_name", "emails", "phones", "location", "github", "linkedin", "provenance"],
+    "redact": {
+      "full_name": "[ANONYMOUS]"
+    }
+  },
+
+  "skills_only": {
+    "_description": "Skills-only view — returns just the candidate name, skills list, and confidence score.",
+    "include": ["full_name", "skills", "confidence"],
+    "exclude": ["*"]
+  }
+}
+

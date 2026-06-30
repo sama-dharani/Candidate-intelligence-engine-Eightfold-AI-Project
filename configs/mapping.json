@@ -1,0 +1,13 @@
+{
+  "full_name": ["name", "full name", "candidate name", "fullname", "first name", "last name"],
+  "emails": ["email", "emails", "email address", "emailaddress", "e-mail"],
+  "phones": ["phone", "phones", "phone number", "phonenumber", "mobile", "contact"],
+  "skills": ["skills", "key skills", "expertise", "core competencies", "technical skills"],
+  "experience": ["experience", "work experience", "employment history", "jobs", "history"],
+  "education": ["education", "academic history", "degrees", "university", "college"],
+  "projects": ["projects", "key projects", "portfolio", "built"],
+  "certifications": ["certifications", "certs", "certified", "credentials"],
+  "location": ["location", "city", "address", "lives in", "lives_in", "residence"],
+  "github": ["github", "github link", "github url", "github_profile"],
+  "linkedin": ["linkedin", "linkedin link", "linkedin url", "linkedin_profile"]
+}

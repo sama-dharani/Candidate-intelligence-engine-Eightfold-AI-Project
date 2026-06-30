@@ -1,0 +1,7 @@
+{
+  "Programming": ["python", "java", "javascript", "c++", "c#", "go", "ruby", "rust", "html", "css", "typescript", "php", "c", "swift", "kotlin", "scala"],
+  "AI": ["tensorflow", "pytorch", "langchain", "crewai", "keras", "scikit-learn", "sklearn", "openai", "nlp", "computer vision", "machine learning", "deep learning", "llm", "bert", "hugging face", "huggingface", "artificial intelligence", "nlp", "prompt engineering", "neural networks", "transformers"],
+  "Cloud": ["aws", "google cloud", "gcp", "azure", "oracle cloud", "heroku", "openstack", "amazon web services", "serverless", "lambda", "ec2", "s3"],
+  "Containers": ["docker", "kubernetes", "k8s", "podman", "rancher", "nomad", "helm", "devops", "ci/cd", "jenkins", "github actions"],
+  "Database": ["redis", "postgresql", "postgres", "mysql", "mongodb", "sqlite", "cassandra", "oracle", "dynamodb", "neo4j", "elasticsearch", "sql", "nosql", "mariadb"]
+}
