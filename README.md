@@ -127,13 +127,13 @@ python examples/dashboard/app.py
 
 Once the application starts successfully, open your web browser and navigate to:
 
-```
+``` text
 http://127.0.0.1:5000
 ```
 
 or
 
-```
+``` text
 http://localhost:5000
 ```
 ---
