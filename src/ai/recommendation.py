@@ -26,9 +26,14 @@ class RoleRecommender:
         for role, req_skills in self.role_requirements.items():
             matches = 0
             for req in req_skills:
-                # Direct check or substring check
-                if req in cand_skills or any(req in cs or cs in req for cs in cand_skills):
+                # Direct check or substring check (safe)
+                if req in cand_skills:
                     matches += 1
+                else:
+                    for cs in cand_skills:
+                        if len(req) >= 4 and len(cs) >= 4 and (req in cs or cs in req):
+                            matches += 1
+                            break
             
             # If candidate matches at least 2 required skills or 30% of skills, recommend it
             match_ratio = matches / len(req_skills)

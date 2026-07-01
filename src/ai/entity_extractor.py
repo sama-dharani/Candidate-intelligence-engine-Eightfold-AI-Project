@@ -11,186 +11,36 @@ class EntityExtractor:
         self.proj_headers = [r"\bprojects\b", r"\bkey projects\b", r"\bportfolio\b"]
 
     def _get_sections(self, text: str) -> Dict[str, str]:
-        """Split the text into major sections based on headers."""
-        lines = text.split("\n")
-        sections = {"experience": "", "education": "", "projects": "", "other": ""}
-        current_section = "other"
-        
-        for line in lines:
-            line_lower = line.lower().strip()
-            
-            # Check for header matches
-            matched = False
-            for header in self.exp_headers:
-                if re.search(header, line_lower) and len(line_lower) < 25:
-                    current_section = "experience"
-                    matched = True
-                    break
-            if not matched:
-                for header in self.edu_headers:
-                    if re.search(header, line_lower) and len(line_lower) < 25:
-                        current_section = "education"
-                        matched = True
-                        break
-            if not matched:
-                for header in self.proj_headers:
-                    if re.search(header, line_lower) and len(line_lower) < 25:
-                        current_section = "projects"
-                        matched = True
-                        break
-            
-            if not matched:
-                sections[current_section] += line + "\n"
-        
-        return sections
+        """Split the text into major sections using ResumeParser._chunk_sections."""
+        from src.ai.resume_parser import ResumeParser
+        return ResumeParser._chunk_sections(text)
 
     def extract_experience(self, text: str) -> List[Dict[str, Any]]:
-        """Parse work history entries from text using regex and heuristics."""
-        sec_text = self._get_sections(text)["experience"]
+        """Parse work history entries from text using ResumeParser."""
+        sec_text = self._get_sections(text).get("experience", "")
         if not sec_text.strip():
             return []
 
-        # Split into blocks by year indicators (e.g. 2020 - 2022, or 2019 - Present)
-        # We look for a line containing years as a boundary
-        blocks = []
-        current_block = []
-        lines = [l.strip() for l in sec_text.split("\n") if l.strip()]
-        
-        for line in lines:
-            # Check if line contains a year range
-            if re.search(r"\b(19\d{2}|20\d{2})\b.*\b(19\d{2}|20\d{2}|present|current)\b", line.lower()) or re.search(r"\b(20\d{2})\b", line):
-                if current_block:
-                    blocks.append("\n".join(current_block))
-                    current_block = []
-            current_block.append(line)
-        if current_block:
-            blocks.append("\n".join(current_block))
+        from src.ai.resume_parser import ResumeParser
+        return ResumeParser.parse_experience(sec_text, default_employment_type="Full-Time")
 
-        experience = []
-        titles_pool = ["software engineer", "intern", "internship", "apprentice", "fellowship", "developer", "lead", "architect", "manager", "analyst", "consultant", "scientist", "engineer", "specialist"]
+    def extract_internships(self, text: str) -> List[Dict[str, Any]]:
+        """Parse internships from text using ResumeParser."""
+        sec_text = self._get_sections(text).get("internships", "")
+        if not sec_text.strip():
+            return []
 
-        for block in blocks:
-            blines = [l.strip() for l in block.split("\n") if l.strip()]
-            if not blines:
-                continue
-            
-            # Find years
-            start_year = ""
-            end_year = ""
-            date_match = re.search(r"\b(19\d{2}|20\d{2})\b.*?(Present|Current|\b19\d{2}\b|\b20\d{2}\b)", block, re.IGNORECASE)
-            if date_match:
-                start_year = date_match.group(1)
-                end_year = date_match.group(2)
-            else:
-                single_year_match = re.search(r"\b(19\d{2}|20\d{2})\b", block)
-                if single_year_match:
-                    start_year = single_year_match.group(1)
-                    end_year = single_year_match.group(1)
-
-            # Guess Title and Company
-            title = "Software Engineer"  # default
-            company = "Google"  # fallback
-            title_found = False
-            comp_found = False
-            
-            for l in blines[:2]:  # check first two lines of the block
-                l_lower = l.lower()
-                # Check title
-                for tp in titles_pool:
-                    if tp in l_lower:
-                        title = l
-                        title_found = True
-                        break
-                # Check company indicators like "at Google" or "Google Inc"
-                at_match = re.search(r"\bat\s+([A-Z][a-zA-Z0-9\s]+?)(?:,|\b)", l)
-                if at_match:
-                    company = at_match.group(1).strip()
-                    comp_found = True
-                elif not comp_found and "," in l:
-                    parts = l.split(",")
-                    if len(parts) > 1 and parts[1].strip():
-                        company = parts[1].strip()
-                        comp_found = True
-
-            if not comp_found and blines:
-                # If company still not found, take first word of first line that is not a title
-                first_line = blines[0]
-                if title_found and len(blines) > 1:
-                    company = blines[1]
-                else:
-                    company = first_line.split(",")[0]
-            
-            # Simple cleanup
-            title = re.sub(r"\b(19\d{2}|20\d{2})\b.*", "", title).strip(" -,\t") or "Software Engineer"
-            company = re.sub(r"\b(19\d{2}|20\d{2})\b.*", "", company).strip(" -,\t") or "Tech Company"
-            
-            desc = "\n".join(blines[1:]) if len(blines) > 1 else ""
-            
-            experience.append({
-                "company": company,
-                "title": title,
-                "start_date": start_year,
-                "end_date": end_year,
-                "description": desc
-            })
-
-        return experience
+        from src.ai.resume_parser import ResumeParser
+        return ResumeParser.parse_experience(sec_text, default_employment_type="Internship")
 
     def extract_education(self, text: str) -> List[Dict[str, Any]]:
         """Parse education entries from text."""
-        sec_text = self._get_sections(text)["education"]
+        sec_text = self._get_sections(text).get("education", "")
         if not sec_text.strip():
             return []
 
-        education = []
-        lines = [l.strip() for l in sec_text.split("\n") if l.strip()]
-        
-        # Look for typical degrees & institutions
-        degrees = ["B.S", "M.S", "B.Tech", "M.Tech", "Ph.D", "Bachelor", "Master", "Phd", "BSc", "MSc", "Degree"]
-        institutions = ["University", "College", "Institute", "School", "Stanford", "MIT", "IIT", "BITS", "Harvard"]
-
-        current_edu = {}
-        for line in lines:
-            line_lower = line.lower()
-            # If line matches degree or school, let's build an entry
-            degree_match = None
-            for d in degrees:
-                if d.lower() in line_lower:
-                    degree_match = d
-                    break
-            
-            inst_match = None
-            for inst in institutions:
-                if inst.lower() in line_lower:
-                    inst_match = line
-                    break
-            
-            # Find year
-            year_match = re.search(r"\b(19\d{2}|20\d{2})\b", line)
-            year = year_match.group(1) if year_match else ""
-
-            if inst_match:
-                if current_edu and "institution" in current_edu:
-                    education.append(current_edu)
-                    current_edu = {}
-                current_edu["institution"] = inst_match
-                if year:
-                    current_edu["end_date"] = year
-            
-            if degree_match:
-                current_edu["degree"] = line
-                if year and not current_edu.get("end_date"):
-                    current_edu["end_date"] = year
-            
-            if year and current_edu and not current_edu.get("end_date"):
-                current_edu["end_date"] = year
-
-        if current_edu:
-            if "institution" not in current_edu:
-                current_edu["institution"] = "Stanford University" # fallback
-            education.append(current_edu)
-
-        return education
+        from src.ai.resume_parser import ResumeParser
+        return ResumeParser.parse_education(sec_text)
 
     def extract_projects(self, text: str) -> List[Dict[str, Any]]:
         """Parse projects from text."""
@@ -234,33 +84,80 @@ class EntityExtractor:
 
         return projects
 
-    def build_timeline(self, experience: List[Dict[str, Any]], education: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def build_timeline(self, experience: List[Dict[str, Any]], education: List[Dict[str, Any]], internships: List[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """Construct chronological career timeline listing years, titles, and companies."""
         events = []
         
         # 1. Add Education events
         for edu in education:
-            year_str = edu.get("end_date") or edu.get("start_date") or ""
-            year_match = re.search(r"\b(19\d{2}|20\d{2})\b", year_str)
+            year_str = edu.get("start_date") or edu.get("end_date") or ""
+            year_match = re.search(r"\b(19\d{2}|20\d{2})\b", str(year_str))
+            end_str = edu.get("end_date") or ""
+            end_match = re.search(r"\b(19\d{2}|20\d{2})\b", str(end_str))
+            
             if year_match:
+                start_yr = int(year_match.group(1))
+                end_yr = int(end_match.group(1)) if end_match else start_yr + 4
                 events.append({
-                    "year": int(year_match.group(1)),
+                    "year": start_yr,
+                    "end_year": end_yr,
                     "title": edu.get("degree") or "Student",
                     "company": edu.get("institution") or "University",
                     "type": "education"
                 })
                 
         # 2. Add Experience events
+        import datetime
+        current_year = datetime.datetime.now().year
         for exp in experience:
-            year_str = exp.get("start_date") or ""
-            year_match = re.search(r"\b(19\d{2}|20\d{2})\b", year_str)
+            year_str = exp.get("start_date") or exp.get("start") or ""
+            end_year_str = exp.get("end_date") or exp.get("end") or ""
+            
+            year_match = re.search(r"\b(19\d{2}|20\d{2})\b", str(year_str))
+            end_match = re.search(r"\b(19\d{2}|20\d{2})\b", str(end_year_str))
+            
             if year_match:
+                start_yr = int(year_match.group(1))
+                if end_match:
+                    end_yr = int(end_match.group(1))
+                elif "present" in str(end_year_str).lower() or "current" in str(end_year_str).lower():
+                    end_yr = current_year
+                else:
+                    end_yr = start_yr + 1
+                    
                 events.append({
-                    "year": int(year_match.group(1)),
+                    "year": start_yr,
+                    "end_year": end_yr,
                     "title": exp.get("title") or "Software Engineer",
                     "company": exp.get("company") or "Tech Company",
                     "type": "work"
                 })
+
+        # 3. Add Internship events
+        if internships:
+            for intern in internships:
+                year_str = intern.get("start_date") or intern.get("start") or ""
+                end_year_str = intern.get("end_date") or intern.get("end") or ""
+                
+                year_match = re.search(r"\b(19\d{2}|20\d{2})\b", str(year_str))
+                end_match = re.search(r"\b(19\d{2}|20\d{2})\b", str(end_year_str))
+                
+                if year_match:
+                    start_yr = int(year_match.group(1))
+                    if end_match:
+                        end_yr = int(end_match.group(1))
+                    elif "present" in str(end_year_str).lower() or "current" in str(end_year_str).lower():
+                        end_yr = current_year
+                    else:
+                        end_yr = start_yr + 1
+                        
+                    events.append({
+                        "year": start_yr,
+                        "end_year": end_yr,
+                        "title": intern.get("title") or "Intern",
+                        "company": intern.get("company") or "Tech Company",
+                        "type": "work"
+                    })
 
         # Sort timeline chronologically (by year ascending)
         events.sort(key=lambda x: x["year"])
@@ -277,17 +174,10 @@ class EntityExtractor:
             curr_event = work_events[i]
             next_event = work_events[i + 1]
             
-            # Find gap
-            # Let's say if curr_event was at company A starting in Year X, we don't know the exact end year.
-            # But let's assume the duration or use the experience end date directly.
-            # Since timeline events are mapped by start year, let's check gap between start of Job B and start of Job A
-            # If next start year - curr start year > 2 (assuming average job length is 1-2 years), we report it.
-            # Better yet: check gap between end_date of Job A and start_date of Job B if available.
-            # If dates are just years, let's extract them:
-            curr_end = curr_event["year"] + 1  # assume at least 1 year duration
+            curr_end = curr_event.get("end_year", curr_event["year"] + 1)
             next_start = next_event["year"]
             
-            if next_start - curr_end >= 2:
+            if next_start - curr_end > 1:
                 gap_len = next_start - curr_end
                 gaps.append({
                     "start_year": curr_end,
@@ -302,13 +192,15 @@ class EntityExtractor:
         exp = self.extract_experience(text)
         edu = self.extract_education(text)
         proj = self.extract_projects(text)
-        timeline = self.build_timeline(exp, edu)
+        internships = self.extract_internships(text)
+        timeline = self.build_timeline(exp, edu, internships)
         gaps = self.detect_gaps(timeline)
         
         return {
             "experience": exp,
             "education": edu,
             "projects": proj,
+            "internships": internships,
             "timeline": timeline,
             "gap_detection": gaps
         }

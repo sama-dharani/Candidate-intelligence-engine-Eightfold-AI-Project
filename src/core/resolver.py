@@ -64,8 +64,8 @@ class EntityResolver:
         """Compute matching score and field-level similarities between two candidate records."""
         
         # 1. Exact Email Match Check
-        emails1 = [e.lower().strip() for e in rec1.get("emails", []) if isinstance(e, str)]
-        emails2 = [e.lower().strip() for e in rec2.get("emails", []) if isinstance(e, str)]
+        emails1 = [e.lower().strip() for e in rec1.get("emails", []) if isinstance(e, str) and e.strip()]
+        emails2 = [e.lower().strip() for e in rec2.get("emails", []) if isinstance(e, str) and e.strip()]
         
         # If there's any exact email overlap
         if emails1 and emails2 and (set(emails1) & set(emails2)):
@@ -90,8 +90,8 @@ class EntityResolver:
             email_sim = len(set(emails1) & set(emails2)) / union if union > 0 else 0.0
             
         # Phone Similarity
-        phones1 = [self._clean_phone(p) for p in rec1.get("phones", []) if isinstance(p, str)]
-        phones2 = [self._clean_phone(p) for p in rec2.get("phones", []) if isinstance(p, str)]
+        phones1 = [self._clean_phone(p) for p in rec1.get("phones", []) if isinstance(p, str) and self._clean_phone(p)]
+        phones2 = [self._clean_phone(p) for p in rec2.get("phones", []) if isinstance(p, str) and self._clean_phone(p)]
         phone_sim = 0.0
         if phones1 and phones2:
             if set(phones1) & set(phones2):

@@ -6,6 +6,7 @@ try:
     _PDF_BACKEND = "pdfplumber"
 except ImportError:
     try:
+        # pyrefly: ignore [missing-import]
         from PyPDF2 import PdfReader
         _PDF_BACKEND = "pypdf2"
     except ImportError:
@@ -62,5 +63,6 @@ class PDFLoader:
             except Exception:
                 pass
 
-        # Final fallback: read as text
-        return path.read_text(encoding="utf-8", errors="ignore")
+        # Final fallback: if it reached here, all PDF parsing failed.
+        # Do NOT read as plain text because it will yield binary garbage.
+        return ""

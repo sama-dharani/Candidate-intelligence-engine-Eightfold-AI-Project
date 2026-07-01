@@ -179,6 +179,7 @@ class TestConfidenceEngine:
 
     def test_full_profile_scores_high(self):
         cand = {
+            "full_name": "John Doe",
             "emails": ["a@b.com"],
             "phones": ["9999999999"],
             "skills": ["Python", "AWS", "Docker", "Kubernetes", "TensorFlow", "PyTorch", "SQL"],
@@ -189,18 +190,19 @@ class TestConfidenceEngine:
             "provenance": [{"source_index": 0, "source_type": "csv", "fields_contributed": ["emails", "phones", "skills"]}]
         }
         result = self.engine.compute(cand)
-        assert result["score"] >= 0.85
+        # Score should be ~67 because it is density-based (1/3 jobs, 7/10 skills, no projects)
+        assert result["score"] >= 65.0
 
     def test_empty_profile_scores_low(self):
         result = self.engine.compute({"provenance": []})
-        assert result["score"] <= 0.10
+        assert result["score"] <= 10.0
 
     def test_reasons_list_is_populated(self):
         cand = {"emails": ["x@y.com"], "provenance": []}
         result = self.engine.compute(cand)
         assert len(result["reasons"]) > 0
 
-    def test_score_clamped_to_1(self):
+    def test_score_clamped_to_100(self):
         cand = {
             "emails": ["a@b.com"], "phones": ["123"], "skills": ["x"] * 20,
             "github": "gh", "linkedin": "li",
@@ -208,7 +210,7 @@ class TestConfidenceEngine:
             "provenance": [{"source_index": 0, "source_type": "ats", "fields_contributed": ["emails", "phones", "skills", "github"]}]
         }
         result = self.engine.compute(cand)
-        assert result["score"] <= 1.0
+        assert result["score"] <= 100.0
 
 
 # ═══════════════════════════════════════════════════════════════

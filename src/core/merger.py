@@ -132,7 +132,7 @@ class CandidateMerger:
         field_prov = {}  # field_name -> [sources] or field_name -> dict(value -> [sources])
 
         list_fields = ["emails", "phones", "skills", "certifications"]
-        history_fields = ["experience", "education", "projects"]
+        history_fields = ["experience", "education", "projects", "internships"]
         
         # Initialize lists and check for missing/recovered info edge cases
         for idx, rec in enumerate(cluster):
@@ -157,14 +157,12 @@ class CandidateMerger:
                     "detail": f"Recovered from other matched source: {all_emails[0]}",
                     "status": "resolved"
                 })
-                rec["emails"] = all_emails  # Recover email
             if not rec.get("phones") and all_phones:
                 edge_cases.append({
                     "case": f"Missing Phone in {src_type.upper()}",
                     "detail": f"Recovered from other matched source: {all_phones[0]}",
                     "status": "resolved"
                 })
-                rec["phones"] = all_phones
 
         # 1. Merge List Fields (track items & provenance)
         for field in list_fields:
@@ -190,42 +188,47 @@ class CandidateMerger:
         # 2. Merge History/Nested Arrays
         for field in history_fields:
             nested_lists = []
+            sources_for_field = []
             for rec in cluster:
                 src_idx = rec.get("_source_index", cluster.index(rec))
+                src_type = rec.get("_source_type", "unknown").lower()
                 val = rec.get(field)
                 if val:
                     if not isinstance(val, list):
                         val = [val]
                     nested_lists.append(val)
                     provenance_dict[src_idx].append(field)
-            if field == "experience":
+                    if src_type not in sources_for_field:
+                        sources_for_field.append(src_type)
+            if field == "experience" or field == "internships":
                 merged[field] = self._merge_experience(nested_lists)
             elif field == "education":
                 merged[field] = self._merge_education(nested_lists)
             elif field == "projects":
                 merged[field] = self._merge_projects(nested_lists)
+            field_prov[field] = sources_for_field
 
         # 3. Merge Scalar Fields with Conflict Resolution
-        scalar_fields = ["full_name", "location", "github", "linkedin"]
+        scalar_fields = ["full_name", "location", "github", "linkedin", "headline", "summary"]
         for field in scalar_fields:
             candidates = []
             for rec in cluster:
                 val = rec.get(field)
                 if val:
-                    candidates.append((val, rec.get("_source_type", "unknown"), rec.get("_source_index", cluster.index(rec))))
+                    candidates.append((val, rec.get("_source_type", "unknown").lower(), rec.get("_source_index", cluster.index(rec))))
             
             if not candidates:
                 merged[field] = ""
                 continue
 
-            # Check for conflict
             unique_vals = list(set(c[0] for c in candidates))
             if len(unique_vals) > 1:
-                # We have a conflict!
-                # Policy: Newest or higher trust source (ATS > Resume > CSV)
-                trust_order = ["ats", "resume", "linkedin", "github", "csv"]
+                # Conflict: Apply strict Source Priority
+                trust_order = ["linkedin", "github", "ats", "resume", "recruiter_notes", "csv"]
+                
                 best_cand = candidates[0]
                 best_trust_index = len(trust_order)
+                
                 for cand in candidates:
                     src_type = cand[1]
                     if src_type in trust_order:
@@ -233,20 +236,25 @@ class CandidateMerger:
                         if trust_idx < best_trust_index:
                             best_trust_index = trust_idx
                             best_cand = cand
-                
+                            
                 selected_val = best_cand[0]
-                conflicting_sources = {c[1]: c[0] for c in candidates}
+                winning_source = best_cand[1]
+                
+                losers = []
+                for c in candidates:
+                    if c[0] != selected_val:
+                        losers.append({"source": c[1], "value": c[0]})
+                
                 conflict_log.append({
                     "field": field,
-                    "sources": conflicting_sources,
-                    "selected": selected_val,
-                    "reason": f"Resolved conflict by picking value from higher priority source: {best_cand[1].upper()}"
+                    "winner": {"source": winning_source, "value": selected_val},
+                    "losers": losers,
+                    "reason": f"Deterministic merge prioritized {winning_source.upper()} over {', '.join([l['source'].upper() for l in losers])}"
                 })
                 merged[field] = selected_val
             else:
                 merged[field] = unique_vals[0]
 
-            # Field provenance
             field_prov[field] = list(set(c[1] for c in candidates))
 
         # Provenance metadata

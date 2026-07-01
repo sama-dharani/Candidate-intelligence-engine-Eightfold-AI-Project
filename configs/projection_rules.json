@@ -9,7 +9,7 @@
 
   "recruiter": {
     "_description": "Recruiter view — PII (email, phone) is redacted. Skills, experience, education and timeline are included.",
-    "include": ["full_name", "emails", "phones", "skills", "experience", "education", "projects", "certifications", "location", "confidence", "recommendations", "timeline"],
+    "include": ["full_name", "emails", "phones", "skills", "experience", "internships", "education", "projects", "certifications", "location", "confidence", "recommendations", "timeline"],
     "exclude": ["provenance"],
     "redact": {
       "emails": "[REDACTED]",
@@ -19,13 +19,13 @@
 
   "public": {
     "_description": "Public view — PII and provenance metadata are excluded. Suitable for candidate-facing portals.",
-    "include": ["full_name", "skills", "experience", "education", "projects", "certifications", "location", "confidence", "recommendations", "timeline"],
+    "include": ["full_name", "skills", "experience", "internships", "education", "projects", "certifications", "location", "confidence", "recommendations", "timeline"],
     "exclude": ["emails", "phones", "github", "linkedin", "provenance"]
   },
 
   "anonymous": {
     "_description": "Anonymous view — full_name is redacted and all PII is stripped. Used for blind screening to remove hiring bias.",
-    "include": ["skills", "experience", "education", "projects", "certifications", "confidence", "timeline"],
+    "include": ["skills", "experience", "internships", "education", "projects", "certifications", "confidence", "timeline"],
     "exclude": ["full_name", "emails", "phones", "location", "github", "linkedin", "provenance"],
     "redact": {
       "full_name": "[ANONYMOUS]"

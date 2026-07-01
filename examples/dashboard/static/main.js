@@ -44,8 +44,9 @@ function pct(score) {
   return Math.round((score || 0) * 100) + '%';
 }
 function confColor(score) {
-  if (score >= 0.85) return '#10b981';
-  if (score >= 0.65) return '#f59e0b';
+  const s = score > 1 ? score / 100 : score;
+  if (s >= 0.85) return '#10b981';
+  if (s >= 0.65) return '#f59e0b';
   return '#ef4444';
 }
 
@@ -212,15 +213,21 @@ async function loadAllData() {
   await loadDuplicates();
   await loadEdgeCases();
 
-  // Highlight first candidate by default if none selected
+  // Highlight first candidate by default if none selected or active is stale
   if (ALL_CANDIDATES.length) {
     if (!activeCandidate) {
       selectCandidate(ALL_CANDIDATES[0]);
     } else {
       // Refresh active candidate data
       const refreshed = ALL_CANDIDATES.find(c => candidateId(c) === candidateId(activeCandidate));
-      if (refreshed) selectCandidate(refreshed);
+      if (refreshed) {
+        selectCandidate(refreshed);
+      } else {
+        selectCandidate(ALL_CANDIDATES[0]);
+      }
     }
+  } else {
+    selectCandidate(null);
   }
 
   refreshCandidatesTab();
@@ -308,6 +315,7 @@ function applyPresetView() {
     location: ['full', 'recruiter', 'public'].includes(preset),
     skills:   ['full', 'recruiter', 'public', 'skills_only', 'anonymous'].includes(preset),
     exp:      ['full', 'recruiter', 'public', 'anonymous'].includes(preset),
+    internships: ['full', 'recruiter', 'public', 'anonymous'].includes(preset),
     edu:      ['full', 'recruiter', 'public', 'anonymous'].includes(preset),
     projects: ['full', 'recruiter', 'public', 'anonymous'].includes(preset),
     conf:     ['full', 'recruiter', 'public', 'skills_only', 'anonymous'].includes(preset),
@@ -321,6 +329,7 @@ function applyPresetView() {
   document.getElementById('cfg-location').checked  = chks.location;
   document.getElementById('cfg-skills').checked    = chks.skills;
   document.getElementById('cfg-exp').checked       = chks.exp;
+  document.getElementById('cfg-internships').checked = chks.internships;
   document.getElementById('cfg-edu').checked       = chks.edu;
   document.getElementById('cfg-projects').checked  = chks.projects;
   document.getElementById('cfg-conf').checked      = chks.conf;
@@ -345,6 +354,7 @@ function applyCustomConfig() {
     'cfg-location': 'location',
     'cfg-skills':   'skills',
     'cfg-exp':      'experience',
+    'cfg-internships': 'internships',
     'cfg-edu':      'education',
     'cfg-projects': 'projects'
   };
@@ -401,12 +411,20 @@ function renderCandidateCards(candidates) {
       <div class="match-ex-card">Matched: ${c.match_explanation.join(' | ')}</div>
     ` : '';
 
-    // Profile completeness: count non-empty key fields
-    const fields = ['full_name','emails','phones','skills','experience','education','location','github','linkedin'];
-    const present = fields.filter(f => {
-      const v = c[f]; return Array.isArray(v) ? v.length > 0 : !!v;
-    }).length;
-    const compPct = Math.round((present / fields.length) * 100);
+    // Profile completeness: count non-empty key fields dynamically
+    const compPct = Math.round(c.profile_completeness !== undefined ? c.profile_completeness : (() => {
+      const fields = ['full_name','emails','phones','location','skills','experience','internships','education','projects','certifications','github','linkedin'];
+      const present = fields.filter(f => {
+        if (f === 'experience') {
+          return (c.experience && c.experience.length > 0);
+        }
+        if (f === 'internships') {
+          return (c.internships && c.internships.length > 0);
+        }
+        const v = c[f]; return Array.isArray(v) ? v.length > 0 : !!v;
+      }).length;
+      return (present / fields.length) * 100;
+    })());
     const compColor = compPct >= 80 ? '#10b981' : compPct >= 50 ? '#f59e0b' : '#ef4444';
 
     return `
@@ -417,7 +435,7 @@ function renderCandidateCards(candidates) {
           <div class="card-name">${c.full_name || 'Unknown'}</div>
           <div class="card-loc">${c.location || '—'}</div>
         </div>
-        <div class="card-conf" style="color:${confColor(conf)}">${Math.round(conf*100)}%</div>
+        <div class="card-conf" style="color:${confColor(conf)}">${Math.round(conf)}%</div>
       </div>
       <div class="card-skills">
         ${skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
@@ -461,6 +479,15 @@ function openCandidate(id) {
 // ══════════════════════════════════════════════════════════════
 
 async function selectCandidate(candidate) {
+  if (!candidate) {
+    activeCandidate = null;
+    document.getElementById('profile-container').innerHTML = `
+      <div class="empty-state">
+        <p>No candidate selected.</p>
+      </div>`;
+    document.getElementById('json-code').innerHTML = `// No candidate selected`;
+    return;
+  }
   activeCandidate = candidate;
 
   // Send request to project profile rules dynamically
@@ -532,10 +559,21 @@ function renderDetailPanel(c, projected) {
       </thead>
       <tbody>
         ${conflicts.map(cf => {
-          const entries = Object.entries(cf.sources || {});
-          const winner  = cf.selected || '';
-          const losers  = entries.filter(([, v]) => v !== winner).map(([, v]) => v);
-          const winSrc  = entries.find(([, v]) => v === winner)?.[0] || '';
+          let winner = '';
+          let losers = [];
+          let winSrc = '';
+          if (cf.winner) {
+            winner = cf.winner.value || '';
+            winSrc = cf.winner.source || '';
+            if (Array.isArray(cf.losers)) {
+              losers = cf.losers.map(l => `${l.value} (${l.source.toUpperCase()})`);
+            }
+          } else {
+            const entries = Object.entries(cf.sources || {});
+            winner  = cf.selected || '';
+            losers  = entries.filter(([, v]) => v !== winner).map(([, v]) => v);
+            winSrc  = entries.find(([, v]) => v === winner)?.[0] || '';
+          }
           return `
             <tr>
               <td class="conflict-field-name">${cf.field}</td>
@@ -575,10 +613,22 @@ function renderDetailPanel(c, projected) {
 
   // AI Enrichment section
   const recs   = c.recommendations || [];
-  const topRec = recs[0] || {};
+  let topRole = 'Software Engineer';
+  if (recs.length > 0) {
+    if (typeof recs[0] === 'string') {
+      const matchRole = recs[0].match(/^(.*?)\s*\(Match/);
+      if (matchRole) {
+        topRole = matchRole[1];
+      } else {
+        topRole = recs[0];
+      }
+    } else if (recs[0].role) {
+      topRole = recs[0].role;
+    }
+  }
   const skills = c.skills || [];
   const exp    = c.experience || [];
-  const expYears = Math.min(20, exp.length * 1.5);
+  const expYears = c.experience_years !== undefined ? c.experience_years : Math.min(20, exp.length * 1.5);
   const careerLevel = expYears >= 7 ? 'Senior' : expYears >= 3 ? 'Intermediate' : 'Junior';
   const allKnownSkills = ['Spring Boot','Kubernetes','Terraform','GraphQL','Kafka','Redis','TypeScript','Next.js','FastAPI','Rust'];
   const skillLower = skills.map(s => s.toLowerCase());
@@ -587,15 +637,15 @@ function renderDetailPanel(c, projected) {
     <div class="ai-enrichment-grid">
       <div class="ai-enrichment-card">
         <div class="ai-label">Detected Role</div>
-        <div class="ai-val">${topRec.role || (skills.includes('Python') || skills.includes('Java') ? 'Backend Engineer' : 'Software Engineer')}</div>
+        <div class="ai-val">${topRole}</div>
       </div>
       <div class="ai-enrichment-card">
         <div class="ai-label">Primary Domain</div>
-        <div class="ai-val">${topRec.domain || (skills.some(s => ['aws','gcp','azure','docker','kubernetes'].includes(s.toLowerCase())) ? 'Cloud/DevOps' : 'Software Development')}</div>
+        <div class="ai-val">${skills.some(s => ['aws','gcp','azure','docker','kubernetes'].includes(s.toLowerCase())) ? 'Cloud/DevOps' : 'Software Development'}</div>
       </div>
       <div class="ai-enrichment-card">
         <div class="ai-label">Career Level</div>
-        <div class="ai-val">${careerLevel}</div>
+        <div class="ai-val">${careerLevel} (${expYears} Yrs)</div>
       </div>
       <div class="ai-enrichment-card">
         <div class="ai-label">Top Skills</div>
@@ -624,9 +674,21 @@ function renderDetailPanel(c, projected) {
     <div class="exp-row">
       <div class="exp-row-top">
         <span class="exp-comp">${e.company}</span>
-        <span class="exp-dur">${e.start_date} — ${e.end_date}</span>
+        <span class="exp-dur">${e.start_date || e.start || ''} — ${e.end_date || e.end || ''}</span>
       </div>
       <div style="font-size:12.5px;font-weight:500;">${e.title}</div>
+      ${e.description ? `<div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">${e.description}</div>` : ''}
+    </div>
+  `).join('');
+
+  const internHTML = (projected.internships || []).map(e => `
+    <div class="exp-row">
+      <div class="exp-row-top">
+        <span class="exp-comp">${e.company}</span>
+        <span class="exp-dur">${e.start_date || e.start || ''} — ${e.end_date || e.end || ''}</span>
+      </div>
+      <div style="font-size:12.5px;font-weight:500;">${e.title} <span style="background:rgba(124,58,237,0.15); color:#a78bfa; padding:1px 5px; font-size:10px; border-radius:4px; margin-left:4px;">Internship</span></div>
+      ${e.description ? `<div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">${e.description}</div>` : ''}
     </div>
   `).join('');
 
@@ -640,7 +702,7 @@ function renderDetailPanel(c, projected) {
         </div>
       </div>
       <div class="profile-conf-badge" style="color:${confColor(conf)}">
-        <div class="score">${Math.round(conf*100)}%</div>
+        <div class="score">${Math.round(conf)}%</div>
         <div class="lbl">Engine Confidence</div>
       </div>
     </div>
@@ -657,7 +719,8 @@ function renderDetailPanel(c, projected) {
           <div class="card-skills">${projected.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
         </div>
       ` : ''}
-      ${expHTML ? `<div class="detail-row" style="flex-direction:column;gap:6px;"><span class="detail-key">Experience Timeline</span><div>${expHTML}</div></div>` : ''}
+      ${expHTML ? `<div class="detail-row" style="flex-direction:column;gap:6px;"><span class="detail-key">Experience</span><div>${expHTML}</div></div>` : ''}
+      ${internHTML ? `<div class="detail-row" style="flex-direction:column;gap:6px;"><span class="detail-key">Internships</span><div>${internHTML}</div></div>` : ''}
     </div>
 
     <!-- Schema Validation checklist -->
@@ -812,23 +875,32 @@ function computeCandidateAnalytics(c) {
   let categories = { "Programming": [], "Cloud": [], "AI": [], "DevOps": [], "Soft Skills": [] };
 
   const exps = c.experience || [];
+  const internships = c.internships || [];
   const edus = c.education || [];
   const projs = c.projects || [];
   const certs = c.certifications || [];
   const skills = c.skills || [];
   
-  if (exps.length > 3) strengths.push("Strong stable experience");
-  else if (exps.length === 0) weaknesses.push("No experience listed");
+  if (exps.length > 2 || (exps.length + internships.length) > 3) strengths.push("Strong experience history");
+  else if (exps.length === 0 && internships.length === 0) weaknesses.push("No experience or internships listed");
 
   if (skills.some(s => ['python', 'java', 'c++'].includes(s.toLowerCase()))) categories["Programming"].push(...skills.filter(s => ['python', 'java', 'c++'].includes(s.toLowerCase())));
   if (skills.some(s => ['aws', 'gcp', 'azure'].includes(s.toLowerCase()))) categories["Cloud"].push(...skills.filter(s => ['aws', 'gcp', 'azure'].includes(s.toLowerCase())));
 
-  let atsScore = 60 + (exps.length * 5) + (edus.length ? 10 : 0) + (skills.length * 2);
-  if (c.emails && c.emails.length) atsScore += 10;
+  // Dynamic AI ATS Score based on profile structure, skills, and experience
+  let atsScore = 40; 
+  if (c.full_name) atsScore += 5;
+  if (c.emails && c.emails.length) atsScore += 5;
   if (c.phones && c.phones.length) atsScore += 5;
+  if (c.location) atsScore += 5;
+  
+  atsScore += Math.min(20, skills.length * 2);
+  atsScore += Math.min(25, (exps.length * 5) + (internships.length * 4));
+  if (edus.length) atsScore += 10;
+  if (projs.length) atsScore += 10;
   if (atsScore > 100) atsScore = 100;
 
-  let conf = Math.round((c.confidence?.score || 0) * 100);
+  let conf = Math.round(c.confidence?.score || c.overall_confidence || 0);
   
   let recRole = "Software Engineer";
   if (skills.some(s => ['machine learning', 'ai', 'pytorch', 'tensorflow'].includes(s.toLowerCase()))) recRole = "ML Engineer";
@@ -845,7 +917,7 @@ function computeCandidateAnalytics(c) {
   if (c.linkedin) formatScore += 10;
   if (c.github) formatScore += 10;
 
-  return { atsScore, conf, formatScore, strengths, weaknesses, missing, categories, recRole, exps, edus, projs, certs };
+  return { atsScore, conf, formatScore, strengths, weaknesses, missing, categories, recRole, exps, internships, edus, projs, certs };
 }
 
 function switchCompareTab(panelId, tabName) {
@@ -880,18 +952,31 @@ function renderCandidatePanel(c, panelId) {
     `;
   }).join('');
 
-  const expHTML = ana.exps.map(e => {
+  const expHTML = (c.experience || []).map(e => {
     let desc = e.description || e.details || [];
     if (typeof desc === 'string') desc = [desc];
     return `
     <div class="timeline-item">
       <div class="timeline-title">${e.role || e.title || 'Role'}</div>
       <div class="timeline-company">${e.company || e.organization || 'Company'} <span class="verified-badge">Verified</span></div>
-      <div class="timeline-date">${e.date || e.duration || ''}</div>
+      <div class="timeline-date">${e.start_date || e.start || ''} — ${e.end_date || e.end || ''}</div>
       <div class="timeline-desc">${desc.join(' ')}</div>
     </div>
     `;
-  }).join('') || '<div style="color:var(--text-muted);font-size:13px;">No experience data available.</div>';
+  }).join('');
+
+  const internHTML = (c.internships || []).map(e => {
+    let desc = e.description || e.details || [];
+    if (typeof desc === 'string') desc = [desc];
+    return `
+    <div class="timeline-item">
+      <div class="timeline-title">${e.role || e.title || 'Role'}</div>
+      <div class="timeline-company">${e.company || e.organization || 'Company'} <span class="verified-badge">Verified</span></div>
+      <div class="timeline-date">${e.start_date || e.start || ''} — ${e.end_date || e.end || ''}</div>
+      <div class="timeline-desc">${desc.join(' ')}</div>
+    </div>
+    `;
+  }).join('');
 
   return `
     <div class="candidate-compare-card" id="${panelId}">
@@ -970,7 +1055,17 @@ function renderCandidatePanel(c, panelId) {
       </div>
 
       <div class="compare-tab-pane" data-tab="experience">
-        <div class="timeline">${expHTML}</div>
+        <div class="timeline">
+          ${expHTML ? `
+            <div style="font-weight:600; font-size:13px; color:var(--text-dim); margin-bottom:10px;">Experience</div>
+            ${expHTML}
+          ` : ''}
+          ${internHTML ? `
+            <div style="font-weight:600; font-size:13px; color:var(--text-dim); margin-top:20px; margin-bottom:10px;">Internships</div>
+            ${internHTML}
+          ` : ''}
+          ${!expHTML && !internHTML ? '<div style="color:var(--text-muted);font-size:13px;">No career history available.</div>' : ''}
+        </div>
       </div>
     </div>
   `;
@@ -1067,7 +1162,30 @@ async function runComparison() {
     const anaA = computeCandidateAnalytics(candA);
     const anaB = computeCandidateAnalytics(candB);
 
+    let duplicateWarning = '';
+    const nameA = (candA.full_name || "").trim().toLowerCase();
+    const nameB = (candB.full_name || "").trim().toLowerCase();
+    
+    // Check for email overlaps
+    const emailsA = candA.emails || [];
+    const emailsB = candB.emails || [];
+    const hasSharedEmail = emailsA.some(e => emailsB.includes(e));
+
+    // Check for phone overlaps
+    const phonesA = candA.phones || [];
+    const phonesB = candB.phones || [];
+    const hasSharedPhone = phonesA.some(p => phonesB.includes(p));
+
+    if ((nameA && nameB && nameA === nameB) || hasSharedEmail || hasSharedPhone) {
+      duplicateWarning = `
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 18px;">⚠</span> Duplicate Record Found: These records appear to belong to the same person.
+        </div>
+      `;
+    }
+
     resEl.innerHTML = `
+      ${duplicateWarning}
       <div class="compare-grid animate-slide-up">
         ${renderCandidatePanel(candA, 'panelA')}
         ${renderCandidatePanel(candB, 'panelB')}
@@ -1118,6 +1236,13 @@ async function runComparison() {
                 <td class="diff-val">${anaB.exps.length}</td>
                 <td class="diff-val">${Math.abs(anaA.exps.length - anaB.exps.length)}</td>
                 <td class="${anaA.exps.length > anaB.exps.length ? 'winner' : ''}">${anaA.exps.length > anaB.exps.length ? candA.full_name : candB.full_name}</td>
+              </tr>
+              <tr>
+                <td>Internship Roles</td>
+                <td class="diff-val">${anaA.internships.length}</td>
+                <td class="diff-val">${anaB.internships.length}</td>
+                <td class="diff-val">${Math.abs(anaA.internships.length - anaB.internships.length)}</td>
+                <td class="${anaA.internships.length > anaB.internships.length ? 'winner' : ''}">${anaA.internships.length > anaB.internships.length ? candA.full_name : candB.full_name}</td>
               </tr>
             </tbody>
           </table>

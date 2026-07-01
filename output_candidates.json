@@ -4,51 +4,52 @@
       "john.smith@gmail.com"
     ],
     "phones": [
-      "+1 123-456-7890",
-      "(123) 456-7890",
+      "+11234567890",
       "1234567890"
     ],
     "skills": [
-      "TensorFlow",
       "PyTorch",
-      "aws",
-      "crewai",
-      "docker",
       "langchain",
       "openai",
-      "Python",
       "Machine Learning",
-      "Cloud Computing",
-      "postgresql",
+      "TensorFlow",
       "redis",
-      "SQL"
+      "aws",
+      "SQL",
+      "Python",
+      "postgresql",
+      "Cloud Computing",
+      "docker",
+      "crewai"
     ],
-    "certifications": [],
+    "certifications": [
+      "AWS Certified Developer"
+    ],
     "experience": [
       {
         "company": "Google",
         "title": "Software Engineer",
-        "start_date": "2020",
-        "end_date": "2022",
+        "start_date": "2020-01",
+        "end_date": "2022-01",
         "description": "Built scalable cloud services and Python models."
       },
       {
         "company": "TechCorp",
-        "title": "Leading AI research using LangChain, CrewAI, Python, AWS.",
+        "title": "AI Lead",
         "start_date": "2025",
         "end_date": "Present",
         "description": "Leading AI research using LangChain, CrewAI, Python, AWS."
       },
       {
         "company": "StartupX",
-        "title": "Senior Engineer at StartupX",
+        "title": "Senior Engineer",
         "start_date": "2022",
         "end_date": "2024",
         "description": "Deployed ML models using PyTorch, Docker, Redis."
       },
       {
         "company": "Google",
-        "title": "Intern at Google",
+        "title": "Intern",
         "start_date": "2019",
         "end_date": "2019",
         "description": "Assisted in Python web development and PostgreSQL queries."
@@ -56,10 +57,10 @@
     ],
     "education": [
       {
-        "institution": "BS in Computer Science, Stanford University 2015 - 2019",
-        "degree": "",
-        "start_date": "",
-        "end_date": "2015"
+        "institution": "Stanford University",
+        "degree": "BS in Computer Science",
+        "start_date": "2015",
+        "end_date": "2019"
       }
     ],
     "projects": [
@@ -77,22 +78,14 @@
         "name": "Built an autonomous team assistant using OpenAI APIs.",
         "description": "",
         "technologies": []
-      },
-      {
-        "name": "CERTIFICATIONS",
-        "description": "",
-        "technologies": []
-      },
-      {
-        "name": "AWS Certified Developer",
-        "description": "",
-        "technologies": []
       }
     ],
     "full_name": "John A. Smith",
     "location": "Hyderabad",
     "github": "https://github.com/john-smith-ai",
     "linkedin": "https://linkedin.com/in/johnsmith",
+    "headline": "",
+    "summary": "",
     "provenance": [
       {
         "source_index": 0,
@@ -113,13 +106,21 @@
     "conflict_log": [
       {
         "field": "full_name",
-        "sources": {
-          "csv": "John Smith",
-          "ats": "John A. Smith",
-          "resume": "John Smith"
+        "winner": {
+          "source": "ats",
+          "value": "John A. Smith"
         },
-        "selected": "John A. Smith",
-        "reason": "Resolved conflict by picking value from higher priority source: ATS"
+        "losers": [
+          {
+            "source": "csv",
+            "value": "John Smith"
+          },
+          {
+            "source": "resume",
+            "value": "John Smith"
+          }
+        ],
+        "reason": "Deterministic merge prioritized ATS over CSV, RESUME"
       }
     ],
     "normalization_history": [],
@@ -133,13 +134,11 @@
         ]
       },
       "phones": {
-        "+1 123-456-7890": [
+        "+11234567890": [
           "csv"
         ],
-        "(123) 456-7890": [
-          "ats"
-        ],
         "1234567890": [
+          "ats",
           "resume"
         ]
       },
@@ -185,7 +184,21 @@
           "resume"
         ]
       },
-      "certifications": {},
+      "certifications": {
+        "AWS Certified Developer": [
+          "resume"
+        ]
+      },
+      "experience": [
+        "ats",
+        "resume"
+      ],
+      "education": [
+        "resume"
+      ],
+      "projects": [
+        "resume"
+      ],
       "full_name": [
         "csv",
         "resume",
@@ -224,43 +237,10 @@
       ]
     },
     "skill_analysis": {
-      "TensorFlow": {
-        "domain": "AI",
-        "proficiency": 3,
-        "confidence": 0.6,
-        "reasons": [
-          "Supported by 6.0 years of work history"
-        ]
-      },
       "PyTorch": {
         "domain": "AI",
         "proficiency": 3,
         "confidence": 0.75,
-        "reasons": [
-          "Supported by 1.5 years of work history"
-        ]
-      },
-      "aws": {
-        "domain": "Cloud",
-        "proficiency": 3,
-        "confidence": 0.6,
-        "reasons": [
-          "Supported by 1.5 years of work history"
-        ]
-      },
-      "crewai": {
-        "domain": "AI",
-        "proficiency": 4,
-        "confidence": 0.9,
-        "reasons": [
-          "Applied in hands-on projects",
-          "Supported by 1.5 years of work history"
-        ]
-      },
-      "docker": {
-        "domain": "Containers",
-        "proficiency": 3,
-        "confidence": 0.6,
         "reasons": [
           "Supported by 1.5 years of work history"
         ]
@@ -283,15 +263,6 @@
           "Supported by 6.0 years of work history"
         ]
       },
-      "Python": {
-        "domain": "Programming",
-        "proficiency": 4,
-        "confidence": 0.98,
-        "reasons": [
-          "Applied in hands-on projects",
-          "Supported by 4.5 years of work history"
-        ]
-      },
       "Machine Learning": {
         "domain": "AI",
         "proficiency": 3,
@@ -300,15 +271,15 @@
           "Supported by 6.0 years of work history"
         ]
       },
-      "Cloud Computing": {
-        "domain": "Programming",
+      "TensorFlow": {
+        "domain": "AI",
         "proficiency": 3,
         "confidence": 0.6,
         "reasons": [
           "Supported by 6.0 years of work history"
         ]
       },
-      "postgresql": {
+      "redis": {
         "domain": "Database",
         "proficiency": 3,
         "confidence": 0.6,
@@ -316,8 +287,8 @@
           "Supported by 1.5 years of work history"
         ]
       },
-      "redis": {
-        "domain": "Database",
+      "aws": {
+        "domain": "Cloud",
         "proficiency": 3,
         "confidence": 0.6,
         "reasons": [
@@ -331,13 +302,55 @@
         "reasons": [
           "Supported by 1.5 years of work history"
         ]
+      },
+      "Python": {
+        "domain": "Programming",
+        "proficiency": 4,
+        "confidence": 0.98,
+        "reasons": [
+          "Applied in hands-on projects",
+          "Supported by 4.5 years of work history"
+        ]
+      },
+      "postgresql": {
+        "domain": "Database",
+        "proficiency": 3,
+        "confidence": 0.6,
+        "reasons": [
+          "Supported by 1.5 years of work history"
+        ]
+      },
+      "Cloud Computing": {
+        "domain": "Programming",
+        "proficiency": 3,
+        "confidence": 0.6,
+        "reasons": [
+          "Supported by 6.0 years of work history"
+        ]
+      },
+      "docker": {
+        "domain": "Containers",
+        "proficiency": 3,
+        "confidence": 0.6,
+        "reasons": [
+          "Supported by 1.5 years of work history"
+        ]
+      },
+      "crewai": {
+        "domain": "AI",
+        "proficiency": 4,
+        "confidence": 0.9,
+        "reasons": [
+          "Applied in hands-on projects",
+          "Supported by 1.5 years of work history"
+        ]
       }
     },
     "recommendations": [
       "AI Engineer (Match: 75%)",
       "ML Engineer (Match: 71%)",
-      "Backend Engineer (Match: 70%)",
       "Prompt Engineer (Match: 50%)",
+      "Backend Engineer (Match: 50%)",
       "Data Scientist (Match: 43%)",
       "Full Stack Engineer (Match: 25%)",
       "DevOps Engineer (Match: 22%)"
@@ -345,53 +358,111 @@
     "timeline": [
       {
         "year": 2015,
-        "title": "Student",
-        "company": "BS in Computer Science, Stanford University 2015 - 2019",
+        "end_year": 2019,
+        "title": "BS in Computer Science",
+        "company": "Stanford University",
         "type": "education"
       },
       {
         "year": 2019,
-        "title": "Intern at Google",
+        "end_year": 2019,
+        "title": "Intern",
         "company": "Google",
         "type": "work"
       },
       {
         "year": 2020,
+        "end_year": 2022,
         "title": "Software Engineer",
         "company": "Google",
         "type": "work"
       },
       {
         "year": 2022,
-        "title": "Senior Engineer at StartupX",
+        "end_year": 2024,
+        "title": "Senior Engineer",
         "company": "StartupX",
         "type": "work"
       },
       {
         "year": 2025,
-        "title": "Leading AI research using LangChain, CrewAI, Python, AWS.",
+        "end_year": 2026,
+        "title": "AI Lead",
         "company": "TechCorp",
         "type": "work"
       }
     ],
-    "gap_detection": [
-      {
-        "start_year": 2023,
-        "end_year": 2025,
-        "duration_years": 2,
-        "description": "Employment Gap: 2 years between StartupX and TechCorp"
-      }
+    "gap_detection": [],
+    "total_professional_experience": 5.2,
+    "total_internship_experience": 0.0,
+    "overall_industry_experience": 5.2,
+    "experience_years": 5.2,
+    "profile_completeness": 100.0,
+    "overall_confidence": 90.8,
+    "confidence_breakdown": {
+      "completeness_score": 25.0,
+      "source_score": 20.8,
+      "normalization_score": 15.0,
+      "agreement_score": 10.0,
+      "validation_score": 20.0
+    },
+    "reasons": [
+      "Profile completeness: 25.0/25",
+      "Source verification score: 20.8/25",
+      "Data normalization success: 15.0/15",
+      "Cross-source agreement bonus: +10.0"
     ],
+    "missing_fields": [],
+    "normalization_score": 15.0,
+    "source_score": 20.8,
+    "validation_score": 20.0,
     "confidence": {
-      "score": 1.0,
+      "score": 90.8,
       "reasons": [
-        "\u2714 Email verified across 3 distinct sources (Dynamic Bonus)",
-        "\u2714 Phone number matched across 3 distinct sources (Dynamic Bonus)",
-        "\u2714 Exceptional skills profile (13 skills parsed) (Dynamic Bonus)",
-        "\u2714 GitHub developer profile linked and verified",
-        "\u2714 LinkedIn profile matched and parsed",
-        "\u2714 Complete career profile (both education and work history present)"
-      ]
+        "Profile completeness: 25.0/25",
+        "Source verification score: 20.8/25",
+        "Data normalization success: 15.0/15",
+        "Cross-source agreement bonus: +10.0"
+      ],
+      "fields": {
+        "full_name": 90.0,
+        "emails": 100.0,
+        "phones": 100.0,
+        "location": 75.0,
+        "skills": 100.0,
+        "experience": 95.0,
+        "education": 85.0,
+        "projects": 85.0,
+        "certifications": 85.0,
+        "github": 85.0,
+        "linkedin": 75.0
+      },
+      "skills": {
+        "PyTorch": 85.0,
+        "langchain": 85.0,
+        "openai": 85.0,
+        "Machine Learning": 85.0,
+        "TensorFlow": 85.0,
+        "redis": 85.0,
+        "aws": 85.0,
+        "SQL": 85.0,
+        "Python": 85.0,
+        "postgresql": 85.0,
+        "Cloud Computing": 85.0,
+        "docker": 85.0,
+        "crewai": 85.0
+      },
+      "confidence_breakdown": {
+        "completeness_score": 25.0,
+        "source_score": 20.8,
+        "normalization_score": 15.0,
+        "agreement_score": 10.0,
+        "validation_score": 20.0
+      },
+      "missing_fields": [],
+      "normalization_score": 15.0,
+      "source_score": 20.8,
+      "validation_score": 20.0
     }
   },
   {
@@ -399,7 +470,7 @@
       "jane.doe@yahoo.com"
     ],
     "phones": [
-      "+91 9876543210"
+      "+919876543210"
     ],
     "skills": [
       "Java",
@@ -416,6 +487,8 @@
     "location": "Bangalore",
     "github": "",
     "linkedin": "https://linkedin.com/in/janedoe",
+    "headline": "",
+    "summary": "",
     "provenance": [
       {
         "source_index": 1,
@@ -433,7 +506,7 @@
         ]
       },
       "phones": {
-        "+91 9876543210": [
+        "+919876543210": [
           "csv"
         ]
       },
@@ -455,6 +528,9 @@
         ]
       },
       "certifications": {},
+      "experience": [],
+      "education": [],
+      "projects": [],
       "full_name": [
         "csv"
       ],
@@ -515,16 +591,75 @@
     ],
     "timeline": [],
     "gap_detection": [],
+    "total_professional_experience": 0.0,
+    "total_internship_experience": 0.0,
+    "overall_industry_experience": 0.0,
+    "experience_years": 0.0,
+    "profile_completeness": 54.5,
+    "overall_confidence": 68.8,
+    "confidence_breakdown": {
+      "completeness_score": 15.0,
+      "source_score": 18.8,
+      "normalization_score": 15.0,
+      "agreement_score": 0.0,
+      "validation_score": 20.0
+    },
+    "reasons": [
+      "Profile completeness: 15.0/25",
+      "Source verification score: 18.8/25",
+      "Data normalization success: 15.0/15",
+      "Missing attributes: experience, education, projects"
+    ],
+    "missing_fields": [
+      "experience",
+      "education",
+      "projects",
+      "certifications",
+      "github"
+    ],
+    "normalization_score": 15.0,
+    "source_score": 18.8,
+    "validation_score": 20.0,
     "confidence": {
-      "score": 0.78,
+      "score": 68.8,
       "reasons": [
-        "\u2714 Email address provided and parsed",
-        "\u2714 Phone number provided and validated",
-        "\u2714 Rich skills profile (5 skills parsed)",
-        "\u2139 No GitHub profile linked",
-        "\u2714 LinkedIn profile matched and parsed",
-        "\u2716 Missing both experience and education data (-5%)"
-      ]
+        "Profile completeness: 15.0/25",
+        "Source verification score: 18.8/25",
+        "Data normalization success: 15.0/15",
+        "Missing attributes: experience, education, projects"
+      ],
+      "fields": {
+        "full_name": 75.0,
+        "emails": 75.0,
+        "phones": 75.0,
+        "location": 75.0,
+        "skills": 75.0,
+        "linkedin": 75.0
+      },
+      "skills": {
+        "Java": 85.0,
+        "Spring Boot": 85.0,
+        "React": 85.0,
+        "AWS": 85.0,
+        "Docker": 85.0
+      },
+      "confidence_breakdown": {
+        "completeness_score": 15.0,
+        "source_score": 18.8,
+        "normalization_score": 15.0,
+        "agreement_score": 0.0,
+        "validation_score": 20.0
+      },
+      "missing_fields": [
+        "experience",
+        "education",
+        "projects",
+        "certifications",
+        "github"
+      ],
+      "normalization_score": 15.0,
+      "source_score": 18.8,
+      "validation_score": 20.0
     }
   },
   {
@@ -532,7 +667,7 @@
       "bob.johnson@microsoft.com"
     ],
     "phones": [
-      "444-555-6666"
+      "4445556666"
     ],
     "skills": [
       "React",
@@ -549,6 +684,8 @@
     "location": "Hyderabad",
     "github": "",
     "linkedin": "https://linkedin.com/in/bobjohnson",
+    "headline": "",
+    "summary": "",
     "provenance": [
       {
         "source_index": 2,
@@ -566,7 +703,7 @@
         ]
       },
       "phones": {
-        "444-555-6666": [
+        "4445556666": [
           "csv"
         ]
       },
@@ -588,6 +725,9 @@
         ]
       },
       "certifications": {},
+      "experience": [],
+      "education": [],
+      "projects": [],
       "full_name": [
         "csv"
       ],
@@ -646,16 +786,75 @@
     ],
     "timeline": [],
     "gap_detection": [],
+    "total_professional_experience": 0.0,
+    "total_internship_experience": 0.0,
+    "overall_industry_experience": 0.0,
+    "experience_years": 0.0,
+    "profile_completeness": 54.5,
+    "overall_confidence": 68.8,
+    "confidence_breakdown": {
+      "completeness_score": 15.0,
+      "source_score": 18.8,
+      "normalization_score": 15.0,
+      "agreement_score": 0.0,
+      "validation_score": 20.0
+    },
+    "reasons": [
+      "Profile completeness: 15.0/25",
+      "Source verification score: 18.8/25",
+      "Data normalization success: 15.0/15",
+      "Missing attributes: experience, education, projects"
+    ],
+    "missing_fields": [
+      "experience",
+      "education",
+      "projects",
+      "certifications",
+      "github"
+    ],
+    "normalization_score": 15.0,
+    "source_score": 18.8,
+    "validation_score": 20.0,
     "confidence": {
-      "score": 0.78,
+      "score": 68.8,
       "reasons": [
-        "\u2714 Email address provided and parsed",
-        "\u2714 Phone number provided and validated",
-        "\u2714 Rich skills profile (5 skills parsed)",
-        "\u2139 No GitHub profile linked",
-        "\u2714 LinkedIn profile matched and parsed",
-        "\u2716 Missing both experience and education data (-5%)"
-      ]
+        "Profile completeness: 15.0/25",
+        "Source verification score: 18.8/25",
+        "Data normalization success: 15.0/15",
+        "Missing attributes: experience, education, projects"
+      ],
+      "fields": {
+        "full_name": 75.0,
+        "emails": 75.0,
+        "phones": 75.0,
+        "location": 75.0,
+        "skills": 75.0,
+        "linkedin": 75.0
+      },
+      "skills": {
+        "React": 85.0,
+        "JavaScript": 85.0,
+        "HTML": 85.0,
+        "CSS": 85.0,
+        "TypeScript": 85.0
+      },
+      "confidence_breakdown": {
+        "completeness_score": 15.0,
+        "source_score": 18.8,
+        "normalization_score": 15.0,
+        "agreement_score": 0.0,
+        "validation_score": 20.0
+      },
+      "missing_fields": [
+        "experience",
+        "education",
+        "projects",
+        "certifications",
+        "github"
+      ],
+      "normalization_score": 15.0,
+      "source_score": 18.8,
+      "validation_score": 20.0
     }
   }
 ]

@@ -70,10 +70,10 @@ class RankingEngine:
                         matches += 1
                         matched_skills.append(req)
                     else:
-                        # Fuzzy matches or substring matches
+                        # Fuzzy matches or substring matches (safe length check to prevent single-letter false positives)
                         fuzzy_match = False
                         for cs in cand_skills:
-                            if req in cs or cs in req or difflib.SequenceMatcher(None, req, cs).ratio() > 0.8:
+                            if (len(req) >= 4 and len(cs) >= 4 and (req in cs or cs in req)) or difflib.SequenceMatcher(None, req, cs).ratio() > 0.8:
                                 fuzzy_match = True
                                 matched_skills.append(cs)
                                 break
@@ -85,7 +85,10 @@ class RankingEngine:
                 skill_score = 1.0
 
             # 2. Experience Match Score (Weight: 30%)
-            exp_years = self._calculate_total_experience_years(cand.get("experience", []))
+            exp_years = cand.get("experience_years") or (
+                self._calculate_total_experience_years(cand.get("experience", [])) +
+                self._calculate_total_experience_years(cand.get("internships", []))
+            )
             exp_score = 1.0
             if min_exp > 0:
                 exp_score = min(1.0, exp_years / min_exp)
@@ -103,7 +106,8 @@ class RankingEngine:
                 loc_score = ratio if ratio > 0.6 else 0.0
 
             # 4. Profile Confidence Score (Weight: 10%)
-            conf_score = cand.get("confidence", {}).get("score", 0.0)
+            raw_conf = cand.get("confidence", {}).get("score", 0.0)
+            conf_score = raw_conf / 100.0 if raw_conf > 1.0 else raw_conf
 
             # Final Score Calculation
             final_score = (
@@ -125,7 +129,7 @@ class RankingEngine:
                     reasons.append(f"Fuzzy location match: {cand.get('location')}")
                 else:
                     reasons.append(f"Location mismatch: Candidate is in {cand.get('location') or 'unknown'}")
-            reasons.append(f"Profile Confidence: {int(conf_score*100)}%")
+            reasons.append(f"Profile Confidence: {int(conf_score * 100)}%")
 
             # Create copy and enrich
             cand_ranked = dict(cand)

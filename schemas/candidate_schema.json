@@ -74,14 +74,64 @@
       "type": "array",
       "items": { "type": "string" }
     },
+    "languages": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "awards": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "achievements": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "internships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "company": { "type": "string" },
+          "title": { "type": "string" },
+          "start_date": { "type": "string" },
+          "end_date": { "type": "string" },
+          "description": { "type": "string" }
+        },
+        "required": ["company", "title"]
+      }
+    },
+    "research": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "company": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      }
+    },
+    "volunteer": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "company": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      }
+    },
     "location": { "type": "string" },
     "github": { "type": "string" },
     "linkedin": { "type": "string" },
+    "headline": { "type": "string" },
+    "summary": { "type": "string" },
     "confidence": {
       "type": "object",
       "properties": {
-        "score": { "type": "number", "minimum": 0, "maximum": 1 },
-        "reasons": { "type": "array", "items": { "type": "string" } }
+        "score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "reasons": { "type": "array", "items": { "type": "string" } },
+        "fields": { "type": "object" },
+        "skills": { "type": "object" }
       },
       "required": ["score", "reasons"]
     },
@@ -92,9 +142,28 @@
         "properties": {
           "source_index": { "type": "integer" },
           "source_type": { "type": "string" },
-          "fields_contributed": { "type": "array", "items": { "type": "string" } }
+          "fields_contributed": { "type": "array", "items": { "type": "string" } },
+          "file_name": { "type": "string" },
+          "timestamp": { "type": "string" },
+          "confidence": { "type": "number" },
+          "method": { "type": "string" }
         }
       }
+    },
+    "conflict_log": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "normalization_history": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "edge_cases": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "field_provenance": {
+      "type": "object"
     },
     "timeline": {
       "type": "array",
