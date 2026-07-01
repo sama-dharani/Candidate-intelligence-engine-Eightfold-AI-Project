@@ -124,7 +124,29 @@ python -m spacy download en_core_web_sm
 
 # 7. Start the Dashboard UI (this will block your terminal)
 python examples/dashboard/app.py
+
+Once the application starts successfully, open your web browser and navigate to:
+
+```text
+http://127.0.0.1:5000
 ```
+
+or
+
+```text
+http://localhost:5000
+```
+---
+
+The Eightfold AI Candidate Intelligence Dashboard will open, where you can:
+
+- Upload candidate sources (Resume PDF/DOCX, Recruiter CSV, ATS JSON, etc.)
+- View the end-to-end processing pipeline
+- Inspect normalized candidate records
+- Compare candidates side-by-side
+- Explore the knowledge graph
+- Configure runtime output projection
+- Export the final JSON/CSV output
 ### Extra to run tests
 ### Running Tests
 To run the automated tests open a **new terminal**, activate the environment again, and run:
