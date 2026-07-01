@@ -212,7 +212,7 @@ python -m pytest tests/test_pipeline.py -v
 ---
 
 ## Processing Pipeline
----text
+```text
 
 Input
 ↓
@@ -239,6 +239,7 @@ Projection
 Validation
 ↓
 Final JSON
+```
 
 ---
 
