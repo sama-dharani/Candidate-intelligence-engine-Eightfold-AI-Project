@@ -211,7 +211,8 @@ python -m pytest tests/test_pipeline.py -v
 
 ---
 
-# Processing Pipeline
+## Processing Pipeline
+---text
 
 Input
 ↓
